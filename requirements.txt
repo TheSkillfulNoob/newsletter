@@ -1,5 +1,5 @@
 streamlit_quill
 streamlit
-pymupdf # instead of fitz
-datetime
+json
 html
+PyMuPDF # instead of fitz
