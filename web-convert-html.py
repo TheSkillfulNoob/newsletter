@@ -8,6 +8,7 @@ import fitz  # PyMuPDF
 import os
 from pathlib import Path
 import base64
+import pandas as pd
 
 st.set_page_config(page_title="Newsletter PDF Builder", layout="wide")
 st.title("📬 Newsletter PDF Builder")
@@ -16,6 +17,7 @@ st.title("📬 Newsletter PDF Builder")
 TEMPLATE_PATH = "Weekly-Newsletter-Template-v3.pdf"
 week_no = int(date.today().strftime("%V"))
 OUTPUT_PDF = f"preview_week_{week_no}.pdf"
+ISSUE_TAG = f"25w{week_no}"
 
 anchors = {
     "title":        fitz.Rect(12,  12, 588, 208),
@@ -31,6 +33,19 @@ anchors = {
 sections = ["title", "events", "gratitude", "productivity", "up_next", "facts", "weekly"]
 payload = {}
 
+# ────────────────────────────── Password Gate
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    user_pw = st.text_input("🔒 Enter password to unlock preview tools", type="password")
+    if user_pw == st.secrets["auth"]["password"]:
+        st.success("🔓 Access granted.")
+        st.session_state.authenticated = True
+    elif user_pw:
+        st.error("❌ Incorrect password.")
+    st.stop()
+
 # ────────────────────────────── UI Input
 image_file = st.sidebar.file_uploader("📷 Upload image for newsletter", type=["png", "jpg", "jpeg"])
 image_path = None
@@ -44,27 +59,30 @@ st.sidebar.markdown("You can copy the generated dictionary or preview PDF after 
 
 section_config = {
     "title":        {"limit": 30,  "rich": False, "bg": "#fffbe6"},
-    "events":       {"limit": 400, "rich": True,  "bg": "#f0f8ff", "height": 200},
-    "gratitude":    {"limit": 200, "rich": True,  "bg": "#f0fff0", "height": 100},
-    "productivity": {"limit": 300, "rich": True,  "bg": "#f5f5dc", "height": 125},
-    "up_next":      {"limit": 300, "rich": True,  "bg": "#e8f4fd", "height": 150},
-    "facts":        {"limit": 300, "rich": True,  "bg": "#ffe4e1", "height": 150},
-    "weekly":       {"limit": 150, "rich": True,  "bg": "#fef3e7", "height": 100},
+    "events":       {"limit": 400, "rich": True,  "bg": "#f0f8ff"},
+    "gratitude":    {"limit": 200, "rich": True,  "bg": "#f0fff0"},
+    "productivity": {"limit": 300, "rich": True,  "bg": "#f5f5dc"},
+    "up_next":      {"limit": 300, "rich": True,  "bg": "#e8f4fd"},
+    "facts":        {"limit": 300, "rich": True,  "bg": "#ffe4e1"},
+    "weekly":       {"limit": 150, "rich": True,  "bg": "#fef3e7"},
 }
 
 for section in sections:
     cfg = section_config[section]
-
     with st.container():
+        st_html(f"""
+            <div style="background-color:{cfg['bg']}; padding:16px; border-radius:10px; margin-bottom:10px">
+                <h5 style='margin-top:0; text-transform:capitalize;'>✏️ {section}</h5>
+            </div>
+        """, height=10)
+
         placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
-            st.subheader(section.capitalize())
-            # max height does not work: height = cfg["height"]
-            content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder)
+            content = st_quill(key=f"editor_{section}", html=True, placeholder=placeholder)
         else:
-            content = st.text_input(f"{section.title()}", placeholder = placeholder, key=f"input_{section}")
-        
-        char_count = len(content) if content != placeholder else 0
+            content = st.text_input(f"{section.title()}", placeholder=placeholder, key=f"input_{section}")
+
+        char_count = len(content) if content else 0
         st.caption(f"{char_count}/{cfg['limit']} characters")
 
         if char_count > cfg["limit"]:
@@ -76,9 +94,10 @@ payload["img_rect"] = image_path if image_path else "Test_image"
 
 # ────────────────────────────── Generate Preview PDF
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
-    template_path = Path(TEMPLATE_PATH)
+    template_path = Path(template_path)
     if not template_path.exists():
         st.error(f"Template not found: {template_path.resolve()}")
+        return None
     else:
         doc = fitz.open(str(template_path))
 
@@ -115,26 +134,24 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
 
+# ────────────────────────────── Save to CSV
+def append_payload_to_csv(payload_dict, issue_tag, path="past_records.csv"):
+    flat = {"issue": issue_tag}
+    flat.update(payload_dict)
+    df = pd.DataFrame([flat])
+    if os.path.exists(path):
+        df.to_csv(path, mode='a', header=False, index=False)
+    else:
+        df.to_csv(path, mode='w', header=True, index=False)
+
 # ────────────────────────────── Action Buttons
 st.markdown("---")
 col1, col2 = st.columns([1, 2])
 
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
-if not st.session_state.authenticated:
-    user_pw = st.text_input("🔒 Enter password to unlock preview tools", type="password")
-    if user_pw == st.secrets["auth"]["password"]:
-        st.success("🔓 Access granted.")
-        st.session_state.authenticated = True
-    elif user_pw:
-        st.error("❌ Incorrect password.")
-    st.stop()
-    
 with col1:
     char_limit_exceeded = any(
-    len(payload[sec]) > section_config[sec]["limit"]
-    for sec in sections if sec in payload
+        len(payload[sec]) > section_config[sec]["limit"]
+        for sec in sections if sec in payload
     )
 
     if char_limit_exceeded:
@@ -142,7 +159,9 @@ with col1:
     else:
         if st.button("📄 Generate PDF Preview"):
             pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
-            st.success("PDF generated!")
+            if pdf_path:
+                st.success("✅ PDF generated!")
+                append_payload_to_csv(payload, ISSUE_TAG)
 
 with col2:
     st.download_button("⬇️ Download Payload JSON", data=json.dumps(payload, indent=2), file_name="newsletter_payload.json")
