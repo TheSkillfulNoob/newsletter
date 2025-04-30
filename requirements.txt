@@ -1,1 +1,1 @@
-streamlit-quill
+streamlit_quill
