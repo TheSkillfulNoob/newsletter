@@ -48,7 +48,10 @@ payload["img_rect"] = image_path if image_path else "Test_image"
 
 # ────────────────────────────── Generate Preview PDF
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
-    doc = fitz.open(template_path)
+    try:
+        doc = fitz.open(template_path)
+    except FileNotFoundError:
+        Warning(f"The path {template_path} does NOT exist!")
 
     font_tag, font_name = None, None
     for fid, _, _, fname, tag, _ in doc[0].get_fonts():
