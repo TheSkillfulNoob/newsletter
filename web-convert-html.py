@@ -6,6 +6,7 @@ import html
 import fitz  # PyMuPDF
 import os
 from pathlib import Path
+import base64
 
 st.set_page_config(page_title="WYSIWYG Newsletter Builder", layout="wide")
 st.title("📬 Newsletter Builder & PDF Generator")
@@ -104,5 +105,10 @@ with col2:
 if os.path.exists(OUTPUT_PDF):
     st.markdown("### 🔍 PDF Preview")
     with open(OUTPUT_PDF, "rb") as f:
-        st.download_button("⬇️ Download PDF", f, file_name=OUTPUT_PDF, mime="application/pdf")
-        st.pdf(f)
+        st.download_button("⬇️ Download PDF", f.read(), file_name=OUTPUT_PDF, mime="application/pdf")
+
+        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+        st.markdown(
+            f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px"></iframe>',
+            unsafe_allow_html=True
+        )

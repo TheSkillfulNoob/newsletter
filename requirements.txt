@@ -2,3 +2,4 @@ streamlit_quill
 streamlit
 PyMuPDF
 pathlib
+base64
