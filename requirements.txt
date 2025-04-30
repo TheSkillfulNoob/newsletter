@@ -1,4 +1,4 @@
 streamlit_quill
-fitz
+streamlit
 datetime
 html
