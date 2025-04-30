@@ -54,11 +54,11 @@ section_config = {
 
 for section in sections:
     cfg = section_config[section]
-    st.subheader(section)
 
     with st.container():
         placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
+            st.subheader(section.capitalize())
             content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder)
         else:
             content = st.text_input(f"{section.title()}", placeholder = placeholder, key=f"input_{section}")
