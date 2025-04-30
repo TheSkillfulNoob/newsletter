@@ -1,7 +1,7 @@
 import streamlit as st
 import json
 from streamlit_quill import st_quill
-import fitz
+import pymupdf
 from datetime import date
 import html
 
