@@ -44,12 +44,12 @@ st.sidebar.markdown("You can copy the generated dictionary or preview PDF after 
 
 section_config = {
     "title":        {"limit": 30,  "rich": False, "bg": "#fffbe6"},
-    "events":       {"limit": 400, "rich": True,  "bg": "#f0f8ff"},
-    "gratitude":    {"limit": 200, "rich": True,  "bg": "#f0fff0"},
-    "productivity": {"limit": 300, "rich": True,  "bg": "#f5f5dc"},
-    "up_next":      {"limit": 300, "rich": True,  "bg": "#e8f4fd"},
-    "facts":        {"limit": 300, "rich": True,  "bg": "#ffe4e1"},
-    "weekly":       {"limit": 150, "rich": True,  "bg": "#fef3e7"},
+    "events":       {"limit": 400, "rich": True,  "bg": "#f0f8ff", "height": 200},
+    "gratitude":    {"limit": 200, "rich": True,  "bg": "#f0fff0", "height": 100},
+    "productivity": {"limit": 300, "rich": True,  "bg": "#f5f5dc", "height": 125},
+    "up_next":      {"limit": 300, "rich": True,  "bg": "#e8f4fd", "height": 150},
+    "facts":        {"limit": 300, "rich": True,  "bg": "#ffe4e1", "height": 150},
+    "weekly":       {"limit": 150, "rich": True,  "bg": "#fef3e7", "height": 100},
 }
 
 for section in sections:
@@ -59,7 +59,7 @@ for section in sections:
         placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
             st.subheader(section.capitalize())
-            content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder)
+            content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder, height = cfg["height"])
         else:
             content = st.text_input(f"{section.title()}", placeholder = placeholder, key=f"input_{section}")
         
@@ -118,6 +118,18 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
 st.markdown("---")
 col1, col2 = st.columns([1, 2])
 
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    user_pw = st.text_input("🔒 Enter password to unlock preview tools", type="password")
+    if user_pw == st.secrets["auth"]["password"]:
+        st.success("🔓 Access granted.")
+        st.session_state.authenticated = True
+    elif user_pw:
+        st.error("❌ Incorrect password.")
+    st.stop()
+    
 with col1:
     char_limit_exceeded = any(
     len(payload[sec]) > section_config[sec]["limit"]
