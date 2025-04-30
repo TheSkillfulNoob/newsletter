@@ -1,5 +1,2 @@
 streamlit_quill
 streamlit
-json
-html
-PyMuPDF # instead of fitz
