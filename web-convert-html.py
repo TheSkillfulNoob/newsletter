@@ -59,7 +59,8 @@ for section in sections:
         placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
             st.subheader(section.capitalize())
-            content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder, height = cfg["height"])
+            # max height does not work: height = cfg["height"]
+            content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder)
         else:
             content = st.text_input(f"{section.title()}", placeholder = placeholder, key=f"input_{section}")
         
