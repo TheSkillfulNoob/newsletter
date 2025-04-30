@@ -9,8 +9,8 @@ import os
 from pathlib import Path
 import base64
 
-st.set_page_config(page_title="WYSIWYG Newsletter Builder", layout="wide")
-st.title("📬 Newsletter Builder & PDF Generator")
+st.set_page_config(page_title="Newsletter PDF Builder", layout="wide")
+st.title("📬 Newsletter PDF Builder")
 
 # ────────────────────────────── Setup
 TEMPLATE_PATH = "Weekly-Newsletter-Template-v3.pdf"
@@ -54,19 +54,16 @@ section_config = {
 
 for section in sections:
     cfg = section_config[section]
-    st_html(f"""
-        <div style="background-color:{cfg['bg']}; padding:16px; border-radius:10px; margin-bottom:10px">
-            <h5 style='margin-top:0; text-transform:capitalize;'>✏️ {section}</h5>
-        </div>
-    """, height=10)
+    st.subheader(section)
 
     with st.container():
+        placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
-            content = st_quill(key=f"editor_{section}", html=True, placeholder=f"Enter HTML for {section}...")
+            content = st_quill(key=f"editor_{section}", html=True, placeholder = placeholder)
         else:
-            content = st.text_input(f"{section.title()}", placeholder="Enter plain text...", key=f"input_{section}")
+            content = st.text_input(f"{section.title()}", placeholder = placeholder, key=f"input_{section}")
         
-        char_count = len(content) if content else 0
+        char_count = len(content) if content != placeholder else 0
         st.caption(f"{char_count}/{cfg['limit']} characters")
 
         if char_count > cfg["limit"]:
@@ -142,4 +139,4 @@ if os.path.exists(OUTPUT_PDF):
     st.markdown("### 🔍 PDF Preview")
     with open(OUTPUT_PDF, "rb") as f:
         st.download_button("⬇️ Download PDF", f.read(), file_name=OUTPUT_PDF, mime="application/pdf")
-    st.info("⚠️ Chrome and Edge block embedded PDF preview. Please download the file and open it locally!")
+    st.info("⚠️ Chrome and Edge block embedded PDF preview. Download the file and open locally!")
