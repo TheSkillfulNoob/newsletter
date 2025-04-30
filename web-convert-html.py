@@ -74,7 +74,7 @@ for section in sections:
             <div style="background-color:{cfg['bg']}; padding:16px; border-radius:10px; margin-bottom:10px">
                 <h5 style='margin-top:0; text-transform:capitalize;'>✏️ {section}</h5>
             </div>
-        """, height=10)
+        """, height=100)
 
         placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
