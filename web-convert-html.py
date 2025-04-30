@@ -103,12 +103,9 @@ with col2:
 
 # ────────────────────────────── PDF Preview
 if os.path.exists(OUTPUT_PDF):
-    st.markdown("### 🔍 PDF Preview")
+    st.markdown("### 📤 View PDF in a New Tab")
     with open(OUTPUT_PDF, "rb") as f:
-        st.download_button("⬇️ Download PDF", f.read(), file_name=OUTPUT_PDF, mime="application/pdf")
+        b64 = base64.b64encode(f.read()).decode()
+        href = f'<a href="data:application/pdf;base64,{b64}" target="_blank">📄 Open PDF in new tab</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
-        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-        st.markdown(
-            f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px"></iframe>',
-            unsafe_allow_html=True
-        )
