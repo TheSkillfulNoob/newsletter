@@ -5,12 +5,13 @@ import json
 import html
 import fitz  # PyMuPDF
 import os
+from pathlib import Path
 
 st.set_page_config(page_title="WYSIWYG Newsletter Builder", layout="wide")
 st.title("📬 Newsletter Builder & PDF Generator")
 
 # ────────────────────────────── Setup
-TEMPLATE_PATH = "Weekly Newsletter Template v3.pdf"
+TEMPLATE_PATH = "Weekly-Newsletter-Template-v3.pdf"
 week_no = int(date.today().strftime("%V"))
 OUTPUT_PDF = f"preview_week_{week_no}.pdf"
 
@@ -48,10 +49,11 @@ payload["img_rect"] = image_path if image_path else "Test_image"
 
 # ────────────────────────────── Generate Preview PDF
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
-    try:
-        doc = fitz.open(template_path)
-    except FileNotFoundError:
-        Warning(f"The path {template_path} does NOT exist!")
+    template_path = Path("Weekly Newsletter Template v3.pdf")
+    if not template_path.exists():
+        st.error(f"Template not found: {template_path.resolve()}")
+    else:
+        doc = fitz.open(str(template_path))
 
     font_tag, font_name = None, None
     for fid, _, _, fname, tag, _ in doc[0].get_fonts():
