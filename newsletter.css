@@ -1,0 +1,154 @@
+/* ---  global palette  --------------------------------------------- */
+
+:root {
+    --bg-main: #faf2e1;
+    --note-1: #f8eed1;
+    --note-2: #ffe4e4;
+    --note-3: #bbddff;
+    --outro:  #8c6070;
+  }
+  
+  /* page backdrop */
+  .has-background-beige {
+    background-color: var(--bg-main);
+  }
+  
+  /* ----- sticky‑note cards ----------------------------------------- */
+  .note {
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .note:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  }
+  .note-style1 { background-color: var(--note-1); }
+  .note-style2 { background-color: var(--note-2); }
+  .note-style3 { background-color: var(--note-3); }
+  
+  /* ----- top banner ------------------------------------------------- */
+  .banner-wrapper { position: relative; }
+  .banner-img    { width: 50%; height: auto; border-radius: 0 0 8px 8px; }
+  .banner-caption{
+    position: relative;
+    bottom: 180px;
+    left: 18%;
+    transform: translateX(-50%);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #ffffff;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+  
+  /* ----- outro banner ---------------------------------------------- */
+  .outro {
+    background-color: var(--outro);
+    border-radius: 8px 8px 0 0;
+    padding: 1.25rem 0.5rem;
+  }
+
+/*  Typography  --------------------------------------------------- */
+
+/* Every sticky‑note’s body text */
+.note { 
+    font-family: 'Kaisei Tokumin', serif;
+    font-weight: 400;        /* regular */
+  }
+  
+  /* Section titles, banner caption & outro text */
+  .title,
+  .banner-caption,
+  .outro p {
+    font-family: 'Kanit', sans-serif;
+    font-weight: 700;        /* bold weight we loaded */
+  }
+  
+.my-book {
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+/* Ensure each page inherits your Bulma palette */
+.page {
+  background: #faf2e1;
+  border-radius: 6px;
+  padding: 1.2rem 1.4rem;
+  font-family: 'Kaisei Tokumin', serif;
+}
+
+.banner-spread {
+  position: relative;
+  text-align: center;
+  margin-bottom: .5rem;
+}
+.banner-spread img { width: 100%; border-radius: 4px; }
+.banner-spread h1  {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-family: 'Kanit', sans-serif; color: #fff; text-shadow: 0 2px 6px #000;
+}
+
+.outro-card { background:#8c6070; color:#fff; text-align:center; padding:1rem; }
+
+.my-book {
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+/* Ensure each page inherits your Bulma palette */
+.page {
+  background: #faf2e1;
+  border-radius: 6px;
+  padding: 1.2rem 1.4rem;
+  font-family: 'Kaisei Tokumin', serif;
+}
+
+.banner-spread {
+  position: relative;
+  text-align: center;
+  margin-bottom: .5rem;
+}
+.banner-spread img { width: 100%; border-radius: 4px; }
+.banner-spread h1  {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-family: 'Kanit', sans-serif; color: #fff; text-shadow: 0 2px 6px #000;
+}
+
+/*  palette ------------------------------------------------------- */
+:root{
+    --bg-main:#faf2e1; --note-1:#f8eed1; --note-2:#ffe4e4; --note-3:#bbddff;
+    --outro:#8c6070;
+  }
+  .has-background-beige{background:var(--bg-main);}
+  
+  /*  fonts --------------------------------------------------------- */
+  body,.note{font-family:'Kaisei Tokumin',serif;}
+  .title, .banner-spread h1, .outro-card{font-family:'Kanit',sans-serif;}
+  
+  /*  book/page ----------------------------------------------------- */
+  .my-book{margin:2rem auto; box-shadow:0 8px 24px rgba(0,0,0,.15);}
+  .page{
+    background:var(--bg-main); border-radius:6px;
+    padding:1.2rem 1.4rem; overflow:auto;
+  }
+  .banner-spread{position:relative; text-align:center;margin-bottom:.5rem;}
+  .banner-spread img{width:100%; border-radius:4px;}
+  .banner-spread h1{
+    position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+    color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.6); font-size:1.35rem;
+  }
+  
+  /* sticky notes */
+  .note{
+    border-radius:12px; padding:1rem 1.2rem; box-shadow:0 3px 10px rgba(0,0,0,.07);
+  }
+  .note-style1{background:var(--note-1);}
+  .note-style2{background:var(--note-2);}
+  .note-style3{background:var(--note-3);}
+  .note:hover{transform:translateY(-4px); transition:.25s;}
+  
+  .outro-card{
+    background:var(--outro);color:#fff;text-align:center;padding:1rem;border-radius:6px;
+  }
+  .one-liner{font-style:italic;}
