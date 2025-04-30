@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_quill import st_quill
+from streamlit.components.v1 import html as st_html
 from datetime import date
 import json
 import html
@@ -41,10 +42,37 @@ if image_file:
 st.sidebar.markdown("---")
 st.sidebar.markdown("You can copy the generated dictionary or preview PDF after filling in all sections.")
 
+section_config = {
+    "title":        {"limit": 30,  "rich": False, "bg": "#fffbe6"},
+    "events":       {"limit": 400, "rich": True,  "bg": "#f0f8ff"},
+    "gratitude":    {"limit": 200, "rich": True,  "bg": "#f0fff0"},
+    "productivity": {"limit": 300, "rich": True,  "bg": "#f5f5dc"},
+    "up_next":      {"limit": 300, "rich": True,  "bg": "#e8f4fd"},
+    "facts":        {"limit": 300, "rich": True,  "bg": "#ffe4e1"},
+    "weekly":       {"limit": 150, "rich": True,  "bg": "#fef3e7"},
+}
+
 for section in sections:
-    with st.expander(f"✏️ {section}", expanded=section in ["title", "events"]):
-        content = st_quill(key=f"editor_{section}", html=True, placeholder=f"Enter HTML for {section}...")
-        payload[section] = content or ""
+    cfg = section_config[section]
+    st_html(f"""
+        <div style="background-color:{cfg['bg']}; padding:16px; border-radius:10px; margin-bottom:10px">
+            <h5 style='margin-top:0; text-transform:capitalize;'>✏️ {section}</h5>
+        </div>
+    """, height=10)
+
+    with st.container():
+        if cfg["rich"]:
+            content = st_quill(key=f"editor_{section}", html=True, placeholder=f"Enter HTML for {section}...")
+        else:
+            content = st.text_input(f"{section.title()}", placeholder="Enter plain text...", key=f"input_{section}")
+        
+        char_count = len(content) if content else 0
+        st.caption(f"{char_count}/{cfg['limit']} characters")
+
+        if char_count > cfg["limit"]:
+            st.error(f"Too long! Limit is {cfg['limit']} characters.")
+        else:
+            payload[section] = content or ""
 
 payload["img_rect"] = image_path if image_path else "Test_image"
 
@@ -94,18 +122,24 @@ st.markdown("---")
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    if st.button("📄 Generate PDF Preview"):
-        pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
-        st.success("PDF generated!")
+    char_limit_exceeded = any(
+    len(payload[sec]) > section_config[sec]["limit"]
+    for sec in sections if sec in payload
+    )
+
+    if char_limit_exceeded:
+        st.error("❌ One or more sections exceed character limits. Please revise before generating the PDF.")
+    else:
+        if st.button("📄 Generate PDF Preview"):
+            pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
+            st.success("PDF generated!")
 
 with col2:
     st.download_button("⬇️ Download Payload JSON", data=json.dumps(payload, indent=2), file_name="newsletter_payload.json")
 
 # ────────────────────────────── PDF Preview
 if os.path.exists(OUTPUT_PDF):
-    st.markdown("### 📤 View PDF in a New Tab")
+    st.markdown("### 🔍 PDF Preview")
     with open(OUTPUT_PDF, "rb") as f:
-        b64 = base64.b64encode(f.read()).decode()
-        href = f'<a href="data:application/pdf;base64,{b64}" target="_blank">📄 Open PDF in new tab</a>'
-        st.markdown(href, unsafe_allow_html=True)
-
+        st.download_button("⬇️ Download PDF", f.read(), file_name=OUTPUT_PDF, mime="application/pdf")
+    st.info("⚠️ Chrome and Edge block embedded PDF preview. Please download the file and open it locally!")
