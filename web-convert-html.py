@@ -49,7 +49,7 @@ payload["img_rect"] = image_path if image_path else "Test_image"
 
 # ────────────────────────────── Generate Preview PDF
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
-    template_path = Path("Weekly Newsletter Template v3.pdf")
+    template_path = Path(TEMPLATE_PATH)
     if not template_path.exists():
         st.error(f"Template not found: {template_path.resolve()}")
     else:
