@@ -38,10 +38,10 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
     page = doc[0]
     # First: insert HTML content only (skip image keys explicitly)
-    for key in payload:
-        if key in ["img_rect", "img_weekly"]:
-            continue
-        html_snip = make_html(payload.get(key, ""), is_title=(key == "title"))
+    text_keys = [k for k in anchors if not k.startswith("img") and k in payload and isinstance(payload[k], str)]
+
+    for key in text_keys:
+        html_snip = make_html(payload[key], is_title=(key == "title"))
         try:
             page.insert_htmlbox(anchors[key], html_snip, scale_low=0.5, overlay=True)
         except OverflowError:
