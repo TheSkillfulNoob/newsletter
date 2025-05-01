@@ -33,7 +33,7 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
     page2 = None
     if payload.get("fact_images"):
-        page2 = doc.new_page(width=page1.rect.width, height=page1.rect.height)
+        page2 = doc.new_page(width=page_width, height=page_height)
         insert_fact_images(page2, payload)
 
     if debug:
