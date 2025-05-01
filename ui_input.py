@@ -1,6 +1,23 @@
 import streamlit as st
 from streamlit_quill import st_quill
 from datetime import date
+from html.parser import HTMLParser
+
+class HTMLTextExtractor(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.text_parts = []
+
+    def handle_data(self, data):
+        self.text_parts.append(data)
+
+    def get_text(self):
+        return ''.join(self.text_parts)
+
+def strip_html(html_str):
+    parser = HTMLTextExtractor()
+    parser.feed(html_str or "")
+    return parser.get_text()
 
 def handle_inputs(sections, section_config, payload, week_no):
     # Sidebar image uploads
@@ -34,7 +51,8 @@ def handle_inputs(sections, section_config, payload, week_no):
             content = st_quill(key=f"editor_{section}", html=True, placeholder=placeholder)
         else:
             content = st.text_input(f"{section.title()}", placeholder=placeholder, key=f"input_{section}")
-        char_count = len(content) if content else 0
+        visible_text = strip_html(content) if cfg["rich"] else content #Convert HTML to display for length count
+        char_count = len(visible_text or "")
         st.caption(f"{char_count}/{cfg['limit']} characters")
         if char_count > cfg["limit"]:
             st.error(f"Too long! Limit is {cfg['limit']} characters.")
