@@ -185,6 +185,7 @@ def append_payload_to_csv(payload, week_tag, csv_path="past-content.csv"):
     # Append to CSV
     if os.path.exists(csv_path):
         df.to_csv(csv_path, mode="a", header=False, index=False)
+        st.success(f"✅ Append Payload ({week_tag}) to CSV!")
     else:
         df.to_csv(csv_path, mode="w", header=True, index=False)
         
