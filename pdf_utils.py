@@ -16,14 +16,21 @@ image_grid_rects = [
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=False):
     template_path = Path(template_path)
     if not template_path.exists():
+        st.error("❌ Template file does not exist.")
         return None
     if not template_path.name.endswith(".pdf"):
         st.error("❌ Template file must be a .pdf document.")
         return None
-    doc = fitz.open(str(template_path))
 
+    # Open original template and clone into new doc
+    original = fitz.open(str(template_path))
+    new_doc = fitz.open()
+    new_doc.insert_pdf(original, from_page=0, to_page=0)
+    page1 = new_doc[0]
+
+    # Detect font
     font_tag, font_name = None, None
-    for fid, _, _, fname, tag, _ in doc[0].get_fonts():
+    for fid, _, _, fname, tag, _ in page1.get_fonts():
         if "KaiseiTokumin" in fname:
             font_tag, font_name = tag, fname
             break
@@ -33,18 +40,14 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     def make_html(src, is_title=False):
         if not src:
             return ""
-        if src.lstrip().startswith("<"):
+        if isinstance(src, str) and src.lstrip().startswith("<"):
             return src
         if is_title:
-            return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(src)}</h1>'
-        return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
+            return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(str(src))}</h1>'
+        return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(str(src))}</div>'
 
-    
-
-    page1 = doc[0]
-    # First: insert HTML content only (skip image keys explicitly)
+    # Insert HTML text boxes
     text_keys = [k for k in anchors if not k.startswith("img") and k in payload and isinstance(payload[k], str)]
-
     for key in text_keys:
         html_snip = make_html(payload[key], is_title=(key == "title"))
         try:
@@ -52,19 +55,18 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
         except OverflowError:
             continue
 
+    # Insert first page images
     for img_key in ["img_rect", "img_weekly"]:
-        st.write(f"🔍 Checking image path for {img_key}:", payload.get(img_key))
         if payload.get(img_key) and os.path.exists(payload[img_key]):
             page1.insert_image(anchors[img_key], filename=payload[img_key], keep_proportion=True, overlay=True)
         else:
             st.warning(f"⚠️ Image file for '{img_key}' not found or not uploaded.")
 
-    # ───────── Add second page with up to 6 images
+    # ───────── Add second page with image grid
     if payload.get("fact_images"):
-        doc.insert_page(-1)  # inserts a new page at the end
-        page2 = doc[-1]      # get the last page (safest)
-        assert page2 is not None, "page2 creation failed"
-        
+        new_doc.new_page()
+        page2 = new_doc[-1]
+
         for i, item in enumerate(payload["fact_images"][:6]):
             rect = image_grid_rects[i]
             if os.path.exists(item["img"]):
@@ -76,17 +78,12 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
         if debug:
             red, blue = (1, 0, 0), (0, 0, 1)
-
-            # First page debug
             for key, rect in anchors.items():
                 page1.draw_rect(rect, color=blue, width=0.5)
                 page1.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+            for rect in image_grid_rects:
+                page2.draw_rect(rect, color=blue, width=0.5)
+                page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
 
-            # Second page debug
-            if 'page2' in locals():
-                for rect in image_grid_rects:
-                    page2.draw_rect(rect, color=blue, width=0.5)
-                    page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
-
-    doc.save(output_pdf, deflate=True, garbage=4)
+    new_doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
