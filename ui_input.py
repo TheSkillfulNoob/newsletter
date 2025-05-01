@@ -39,6 +39,7 @@ def handle_main_content(sections, section_config, payload, week_no):
     st.sidebar.markdown("Fill in your newsletter text sections:")
 
     for section in sections:
+        st.markdown(f"### ✏️ {section}")
         cfg = section_config[section]
         placeholder = f"Enter {section}…" if cfg["rich"] else ""
         if cfg["rich"]:
