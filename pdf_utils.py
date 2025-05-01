@@ -68,12 +68,22 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
         if debug:
             red, blue = (1, 0, 0), (0, 0, 1)
+            # Debug rectangles on first page
+            shape1 = page.new_shape()
             for key, rect in anchors.items():
-                page.draw_rect(rect, color=blue, width=0.5)
-                page.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+                shape1.draw_rect(rect)
+                shape1.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
+            shape1.finish(color=blue, fill=None, width=0.5)
+            shape1.commit()
+
+            # Debug rectangles on second page (image grid)
+            shape2 = page2.new_shape()
             for rect in image_grid_rects:
-                page2.draw_rect(rect, color=blue, width=0.5)
-                page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+                shape2.draw_rect(rect)
+                shape2.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
+            shape2.finish(color=blue, fill=None, width=0.5)
+            shape2.commit()
+
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
