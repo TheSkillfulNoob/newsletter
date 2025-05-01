@@ -24,8 +24,9 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     template_page = template_doc[0]
     doc = fitz.open()
 
-    page1 = doc.new_page(width=template_page.rect.width, height=template_page.rect.height)
-    page1.show_pdf_page(page1.rect, template_doc, 0)
+    page_width, page_height = template_page.rect.width, template_page.rect.height
+    page1 = doc.new_page(width=page_width, height=page_height)
+    page1.show_pdf_page(fitz.Rect(0, 0, page_width, page_height), template_doc, 0)
     st.write("✅ page1 parent:", page1.parent is not None and page1.parent.is_pdf)
 
     insert_main_content(page1, payload, anchors, template_page)
@@ -36,7 +37,7 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
         insert_fact_images(page2, payload)
 
     if debug:
-        add_debug_page(doc, anchors, image_grid_rects, width=page1.rect.width, height=page1.rect.height)
+        add_debug_page(doc, anchors, image_grid_rects, width=page_width, height=page_height)
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
