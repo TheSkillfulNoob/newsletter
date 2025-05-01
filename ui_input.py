@@ -59,5 +59,20 @@ def handle_inputs(sections, section_config, payload, week_no):
         else:
             payload[section] = content or ""
 
+    # Fact images and captions
+    st.subheader("📊 Fun Facts & Analysis Images")
+    uploaded_images = st.file_uploader("Upload up to 6 images", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+    payload["fact_images"] = []
+    for i in range(min(6, len(uploaded_images))):
+        file = uploaded_images[i]
+        path = f"fact_img_{week_no}_{i+1}.png"
+        with open(path, "wb") as f:
+            f.write(file.getbuffer())
+        st.image(path, width=200)
+        caption = st.text_input(f"Insight for image {i+1} (max 100 chars)", key=f"caption_{i}")
+        payload["fact_images"].append({
+            "img": path,
+            "caption": caption[:100]
+        })
 
-    return image_path or "Test_image", image_path_weekly or "Test_image"
+    return image_path != "Test_image" and image_path_weekly != "Test_image" #ensure the two images get successfully uploaded
