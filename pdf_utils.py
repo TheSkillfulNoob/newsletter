@@ -89,7 +89,7 @@ def generate_debug_page1(template_path, anchors, payload, output_path="debug_pag
     for key, rect in anchors.items():
         shape.draw_rect(rect)
         shape.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
-        page.insert_textbox(fitz.Rect(rect.x0, rect.y1, rect.x1, rect.y1),
+        page.insert_textbox(fitz.Rect(rect.x0, rect.y0, rect.x1, rect.y1),
                             f"{key}: {payload.get(key, '')[:40]}", fontsize=8)
     shape.finish(color=(0, 0, 1), width=0.5)
     shape.commit()
@@ -105,7 +105,7 @@ def generate_debug_page2(payload, output_path="debug_page2.pdf", width=595, heig
         shape.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
         if i < len(payload.get("fact_images", [])):
             caption = payload["fact_images"][i].get("caption", "")
-            page.insert_textbox(fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28),
+            page.insert_textbox(fitz.Rect(rect.x0, rect.y0, rect.x1, rect.y1),
                                 caption[:40], fontsize=8)
     shape.finish(color=(0, 1, 0), width=0.5)
     shape.commit()
