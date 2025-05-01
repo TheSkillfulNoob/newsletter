@@ -36,6 +36,9 @@ sections = ["title", "events-prof", "events-pers", "gratitude", "productivity", 
 payload = {}
 
 # ────────────────────────────── Password Gate
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+    
 if not st.session_state.authenticated:
     user_pw = st.text_input("🔒 Enter password to unlock preview tools", type="password")
     if user_pw == st.secrets["auth"]["password"]:
