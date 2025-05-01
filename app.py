@@ -64,7 +64,7 @@ with tab_graphs:
     handle_fact_content(payload, week_no)
 
 with tab_dl:
-    st.markdown("### 🚀 Actions & Downloads")
+    st.markdown("### 🚀 Actions & Downloads <br>")
     # Debug Page 1
     c1, c2 = st.columns([1,2])
     with c1:

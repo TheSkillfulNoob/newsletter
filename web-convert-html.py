@@ -83,6 +83,7 @@ section_config = {
 
 for section in sections:
     cfg = section_config[section]
+    st.markdown("#### ✏️ " + section.capitalize())
     with st.container():
         #st_html(f"""
         #    <div style="background-color:{cfg['bg']}; padding:16px; border-radius:10px; margin-bottom:10px">
@@ -92,7 +93,6 @@ for section in sections:
 
         placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
         if cfg["rich"]:
-            st.subheader("✏️ " + section.capitalize())
             content = st_quill(key=f"editor_{section}", html=True, placeholder=placeholder)
         else:
             content = st.text_input(f"{section.title()}", placeholder=placeholder, key=f"input_{section}")

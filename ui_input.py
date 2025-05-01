@@ -39,7 +39,7 @@ def handle_main_content(sections, section_config, payload, week_no):
     st.sidebar.markdown("Fill in your newsletter text sections:")
 
     for section in sections:
-        st.markdown(f"### ✏️ {section}")
+        st.markdown("#### ✏️ " + section.capitalize())
         cfg = section_config[section]
         placeholder = f"Enter {section}…" if cfg["rich"] else ""
         if cfg["rich"]:
@@ -52,7 +52,7 @@ def handle_main_content(sections, section_config, payload, week_no):
         st.caption(f"{len(visible)} / {cfg['limit']} chars")
 
 def handle_fact_content(payload, week_no):
-    st.markdown("### 📊 Fun Facts & Analysis Images")
+    st.markdown("### 📊 Fun Facts & Analysis Images <br>")
     uploaded = st.file_uploader("Upload up to 6 images", type=["png","jpg","jpeg"], accept_multiple_files=True)
     payload["fact_images"] = []
     for i,file in enumerate(uploaded[:6]):
