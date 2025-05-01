@@ -17,6 +17,9 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     template_path = Path(template_path)
     if not template_path.exists():
         return None
+    if not template_path.name.endswith(".pdf"):
+        st.error("❌ Template file must be a .pdf document.")
+        return None
     doc = fitz.open(str(template_path))
 
     font_tag, font_name = None, None
@@ -35,6 +38,8 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
         if is_title:
             return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(src)}</h1>'
         return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
+
+    
 
     page1 = doc[0]
     # First: insert HTML content only (skip image keys explicitly)
@@ -71,16 +76,17 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
         if debug:
             red, blue = (1, 0, 0), (0, 0, 1)
-            shape1 = page1.new_shape()
-            for key, rect in anchors.items():
-                shape1.draw_rect(rect)
-                shape1.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
-            shape1.finish(color=blue, fill=None, width=0.5)
-            shape1.commit()
 
-            for rect in image_grid_rects:
-                page2.draw_rect(rect, color=blue, width=0.5)
-                page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+            # First page debug
+            for key, rect in anchors.items():
+                page1.draw_rect(rect, color=blue, width=0.5)
+                page1.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+
+            # Second page debug
+            if 'page2' in locals():
+                for rect in image_grid_rects:
+                    page2.draw_rect(rect, color=blue, width=0.5)
+                    page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
