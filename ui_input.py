@@ -12,6 +12,7 @@ def handle_inputs(sections, section_config, payload, week_no):
         with open(image_path, "wb") as f:
             f.write(image_file.getbuffer())
         st.sidebar.image(image_path, width=200)
+        payload["img_rect"] = image_path
 
     image_file_weekly = st.sidebar.file_uploader("📷 Upload: Weekly Cover", type=["png", "jpg", "jpeg"], key="weekly_image")
     if image_file_weekly:
@@ -19,7 +20,8 @@ def handle_inputs(sections, section_config, payload, week_no):
         with open(image_path_weekly, "wb") as f:
             f.write(image_file_weekly.getbuffer())
         st.sidebar.image(image_path_weekly, width=200)
-
+        payload["img_weekly"] = image_path_weekly
+        
     st.sidebar.markdown("---")
     st.sidebar.markdown("You can copy the generated dictionary or preview PDF after filling in all sections.")
 
@@ -38,5 +40,6 @@ def handle_inputs(sections, section_config, payload, week_no):
             st.error(f"Too long! Limit is {cfg['limit']} characters.")
         else:
             payload[section] = content or ""
+
 
     return image_path or "Test_image", image_path_weekly or "Test_image"

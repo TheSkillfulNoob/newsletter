@@ -2,6 +2,7 @@ import fitz
 import html
 import os
 from pathlib import Path
+import streamlit as st
 
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=False):
     template_path = Path(template_path)
@@ -38,10 +39,11 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
             continue
 
     for img_key in ["img_rect", "img_weekly"]:
+        st.write(f"🔍 Checking image path for {img_key}:", payload.get(img_key))
         if payload.get(img_key) and os.path.exists(payload[img_key]):
             page.insert_image(anchors[img_key], filename=payload[img_key], keep_proportion=True, overlay=True)
         else:
-            raise Exception("insert_image is not called. Check img_keys!")
+            st.warning(f"⚠️ Image file for '{img_key}' not found or not uploaded.")
 
     if debug:
         red, blue = (1, 0, 0), (0, 0, 1)
