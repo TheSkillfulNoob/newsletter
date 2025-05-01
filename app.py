@@ -66,7 +66,7 @@ if st.button("📄 Generate Newsletter Preview"):
     if any(len(payload[s]) > section_config[s]["limit"] for s in sections if s in payload):
         st.error("❌ Section exceeds character limits.")
     else:
-        preview_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors, debug=False)
+        preview_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
         if preview_path:
             st.success("✅ PDF Generated Successfully")
             with open(preview_path, "rb") as f:
