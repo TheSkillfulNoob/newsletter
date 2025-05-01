@@ -2,10 +2,13 @@ import streamlit as st
 from datetime import date
 from setup import configure_page, authenticate
 from ui_input import handle_inputs
-from pdf_utils import render_pdf_from_payload
+from pdf_utils import (
+    render_pdf_from_payload,
+    generate_debug_page1,
+    generate_debug_page2,
+)
 from csv_utils import generate_appended_csv
 import fitz
-
 configure_page()
 authenticate()
 
@@ -45,12 +48,6 @@ payload = {}
 payload["img_rect"] = "Test_image"
 payload["img_weekly"] = "Test_image"
 handle_inputs(sections, section_config, payload, week_no)
-
-from pdf_utils_debugsplit import (
-    render_pdf_from_payload,
-    generate_debug_page1,
-    generate_debug_page2,
-)
 
 # (1) Debug download of page 1 layout
 if st.button("📤 Download Debug Page 1"):
