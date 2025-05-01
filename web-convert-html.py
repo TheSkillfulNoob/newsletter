@@ -28,7 +28,7 @@ anchors = {
     "up_next":      fitz.Rect(17, 655, 340, 805),
     "facts":        fitz.Rect(335, 460, 585, 625),
     "img_rect":     fitz.Rect(375, 220, 585, 430),
-    "weekly": 		fitz.Rect(360, 740, 585, 805),
+    "weekly": 		fitz.Rect(365, 732, 585, 805),
     "img_weekly": 	fitz.Rect(468, 640, 568, 740) #New image
 }
 
@@ -108,7 +108,7 @@ payload["img_rect"] = image_path if image_path else "Test_image"
 payload["img_weekly"] = image_path_weekly if image_path_weekly else "Test_image"
 
 # ────────────────────────────── Generate Preview PDF
-def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
+def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=False):
     template_path = Path(template_path)
     if not template_path.exists():
         st.error(f"Template not found: {template_path.resolve()}")
@@ -148,6 +148,20 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
     if payload.get("img_weekly") != "Test_image" and os.path.exists(payload["img_weekly"]):
         page.insert_image(anchors["img_weekly"], filename=payload["img_weekly"], keep_proportion=True, overlay=True)
 
+    if debug:
+        red = (1, 0, 0)
+        blue = (0, 0, 1)
+        page = doc[0]
+        shape = page.new_shape()
+        
+        for key, rect in anchors.items():
+            # Draw anchor box
+            page.draw_rect(rect, color=blue, width=0.5)
+            # Draw top-left point
+            point = fitz.Point(rect.x0, rect.y0)
+            page.draw_circle(point, 4, color=red)
+        
+        shape.commit()
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
 
@@ -163,6 +177,7 @@ def append_payload_to_csv(payload_dict, issue_tag, path="past_records.csv"):
 
 # ────────────────────────────── Action Buttons
 st.markdown("---")
+show_debug = st.checkbox("🧪 Show debug layout boundaries (circles + boxes)")
 col1, col2 = st.columns([1, 2])
 
 with col1:
@@ -175,7 +190,7 @@ with col1:
         st.error("❌ One or more sections exceed character limits. Please revise before generating the PDF.")
     else:
         if st.button("📄 Generate PDF Preview"):
-            pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
+            pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors, debug=show_debug)
             if pdf_path:
                 st.success("✅ PDF generated!")
                 append_payload_to_csv(payload, ISSUE_TAG)
