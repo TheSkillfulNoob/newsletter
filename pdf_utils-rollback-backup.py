@@ -16,29 +16,11 @@ image_grid_rects = [
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=False):
     template_path = Path(template_path)
     if not template_path.exists():
-        st.error("❌ Template file does not exist.")
         return None
-    if not template_path.name.endswith(".pdf"):
-        st.error("❌ Template file must be a .pdf document.")
-        return None
+    doc = fitz.open(str(template_path))
 
-    # Open template PDF and create a new writable PDF
-    template_doc = fitz.open(str(template_path))
-    template_page = template_doc[0]
-
-    new_doc = fitz.open()
-    page1 = new_doc.new_page(width=template_page.rect.width, height=template_page.rect.height)
-
-    # Copy visual appearance of template page into new page using show_pdf_page
-    page1.show_pdf_page(page1.rect, template_doc, 0)
-
-    # Confirm debug: page1 should have parent
-    st.write("✅ page1 parent exists:", page1.parent is not None)
-    st.write("✅ page1 parent is a pdf:", page1.parent.is_pdf)
-
-    # Detect font
     font_tag, font_name = None, None
-    for fid, _, _, fname, tag, _ in template_page.get_fonts():
+    for fid, _, _, fname, tag, _ in doc[0].get_fonts():
         if "KaiseiTokumin" in fname:
             font_tag, font_name = tag, fname
             break
@@ -48,14 +30,16 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     def make_html(src, is_title=False):
         if not src:
             return ""
-        if isinstance(src, str) and src.lstrip().startswith("<"):
+        if src.lstrip().startswith("<"):
             return src
         if is_title:
-            return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(str(src))}</h1>'
-        return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(str(src))}</div>'
+            return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(src)}</h1>'
+        return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
 
-    # Insert HTML content
+    page1 = doc[0]
+    # First: insert HTML content only (skip image keys explicitly)
     text_keys = [k for k in anchors if not k.startswith("img") and k in payload and isinstance(payload[k], str)]
+
     for key in text_keys:
         html_snip = make_html(payload[key], is_title=(key == "title"))
         try:
@@ -63,20 +47,17 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
         except OverflowError:
             continue
 
-    # Insert first-page images
     for img_key in ["img_rect", "img_weekly"]:
+        st.write(f"🔍 Checking image path for {img_key}:", payload.get(img_key))
         if payload.get(img_key) and os.path.exists(payload[img_key]):
             page1.insert_image(anchors[img_key], filename=payload[img_key], keep_proportion=True, overlay=True)
         else:
             st.warning(f"⚠️ Image file for '{img_key}' not found or not uploaded.")
 
-    # ───────── Second page rendering
-    page2 = None
+    # ───────── Add second page with up to 6 images
     if payload.get("fact_images"):
-        page2 = new_doc.new_page(width=595, height=842)  # A4 default
-        st.write("✅ page2 parent exists:", page2.parent is not None)
-        st.write("✅ page2 parent is a pdf:", page2.parent.is_pdf)
-
+        page2 = doc.new_page()
+        assert page2 is not None, "page2 creation failed"
         for i, item in enumerate(payload["fact_images"][:6]):
             rect = image_grid_rects[i]
             if os.path.exists(item["img"]):
@@ -86,17 +67,14 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
                 caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28)
                 page2.insert_textbox(caption_rect, caption, fontsize=10, color=(0, 0, 0))
 
-    # ───────── Optional debug boundary rendering
-    if debug:
-        red, blue = (1, 0, 0), (0, 0, 1)
-        for key, rect in anchors.items():
-            page1.draw_rect(rect, color=blue, width=0.5)
-            page1.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
-
-        if page2:
+        if debug:
+            red, blue = (1, 0, 0), (0, 0, 1)
+            for key, rect in anchors.items():
+                page1.draw_rect(rect, color=blue, width=0.5)
+                page1.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
             for rect in image_grid_rects:
                 page2.draw_rect(rect, color=blue, width=0.5)
                 page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
 
-    new_doc.save(output_pdf, deflate=True, garbage=4)
+    doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
