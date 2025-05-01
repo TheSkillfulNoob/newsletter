@@ -60,11 +60,11 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
         for i, item in enumerate(payload["fact_images"][:6]):
             rect = image_grid_rects[i]
             if os.path.exists(item["img"]):
-                page2.insert_image(rect, filename=item["img"], keep_proportion=True, overlay=True, align=1)
+                page2.insert_image(rect, filename=item["img"], keep_proportion=True, overlay=True)
             caption = item.get("caption", "")
             if caption.strip():
                 caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28)
-                page2.insert_textbox(caption_rect, caption, fontsize=10, color=(0, 0, 0), align=1)
+                page2.insert_textbox(caption_rect, caption, fontsize=10, color=(0, 0, 0))
 
         if debug:
             red, blue = (1, 0, 0), (0, 0, 1)
