@@ -44,7 +44,7 @@ if not st.session_state.authenticated:
     if user_pw == st.secrets["auth"]["password"]:
         st.success("🔓 Access granted.")
         st.session_state.authenticated = True
-        st.experimental_rerun()  # 🔁 Force rerun so new UI appears
+        st.rerun()  # 🔁 Force rerun so new UI appears
     elif user_pw:
         st.error("❌ Incorrect password.")
     st.stop()
