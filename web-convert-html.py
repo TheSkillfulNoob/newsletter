@@ -125,14 +125,24 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     if not font_tag:
         font_name = "Helvetica"
 
-    def make_html(src, is_title=False):
+    #def make_html(src, is_title=False):
+    #    if not src:
+    #        return ""
+    #    if src.lstrip().startswith("<"):
+    #        return src
+    #    if is_title:
+    #        return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(src)}</h1>'
+    #    return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
+
+    def make_html(src, is_title=False, rect=None, debug=False):
+        border = "border:1px dashed #00f;" if debug and rect else ""
         if not src:
-            return ""
-        if src.lstrip().startswith("<"):
-            return src
+            return f'<div style="{border};height:100px;"></div>'
+        if isinstance(src, str) and src.lstrip().startswith("<"):
+            return f'<div style="{border}">{src}</div>'
         if is_title:
-            return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(src)}</h1>'
-        return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
+            return f'<h1 style="font-family:\'{font_name}\';margin:0;{border}">{html.escape(str(src))}</h1>'
+        return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt;{border}">{html.escape(str(src))}</div>'
 
     page = doc[0]
     for key, rect in anchors.items():
