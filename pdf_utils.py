@@ -27,11 +27,13 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
         return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
 
     page = doc[0]
-    for key, rect in anchors.items():
-        if key.startswith("img_"): continue
+    # First: insert HTML content only (skip image keys explicitly)
+    for key in payload:
+        if key not in anchors or key in ["img_rect", "img_weekly"]:
+            continue
         html_snip = make_html(payload.get(key, ""), is_title=(key == "title"))
         try:
-            page.insert_htmlbox(rect, html_snip, scale_low=0.5, overlay=True)
+            page.insert_htmlbox(anchors[key], html_snip, scale_low=0.5, overlay=True)
         except OverflowError:
             continue
 
