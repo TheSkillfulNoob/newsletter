@@ -21,14 +21,14 @@ ISSUE_TAG = f"25w{week_no}"
 
 anchors = {   
     "title":        fitz.Rect(12,  12, 588, 208),
-    "events-prof":  fitz.Rect(15, 252, 365, 358), #Split new
-    "events-pers":  fitz.Rect(15, 358, 365, 428), #Split new
-    "gratitude":    fitz.Rect(15, 443, 320, 528), #y0 decreased to accommodate bullet
-    "productivity": fitz.Rect(15, 533, 320, 623), #y0 decreased to accommodate bullet
-    "up_next":      fitz.Rect(15, 655, 340, 805),
-    "facts":        fitz.Rect(335, 465, 585, 625),
+    "events-prof":  fitz.Rect(17, 254, 365, 358), #Split new
+    "events-pers":  fitz.Rect(17, 360, 365, 428), #Split new
+    "gratitude":    fitz.Rect(17, 445, 320, 528), #y0 decreased to accommodate bullet
+    "productivity": fitz.Rect(17, 533, 320, 623), #y0 decreased to accommodate bullet
+    "up_next":      fitz.Rect(17, 655, 340, 805),
+    "facts":        fitz.Rect(335, 460, 585, 625),
     "img_rect":     fitz.Rect(375, 220, 585, 430),
-    "weekly": 		fitz.Rect(360, 745, 585, 805),
+    "weekly": 		fitz.Rect(360, 740, 585, 805),
     "img_weekly": 	fitz.Rect(468, 640, 568, 740) #New image
 }
 
