@@ -19,18 +19,20 @@ week_no = int(date.today().strftime("%V"))
 OUTPUT_PDF = f"preview_week_{week_no}.pdf"
 ISSUE_TAG = f"25w{week_no}"
 
-anchors = {
+anchors = {   
     "title":        fitz.Rect(12,  12, 588, 208),
-    "events":       fitz.Rect(15, 252, 365, 428),
-    "gratitude":    fitz.Rect(15, 448, 275, 528),
-    "productivity": fitz.Rect(15, 543, 275, 623),
-    "up_next":      fitz.Rect(15, 665, 340, 805),
-    "facts":        fitz.Rect(290, 465, 585, 625),
+    "events-prof":  fitz.Rect(15, 252, 365, 355), #Split new
+    "events-pers":  fitz.Rect(15, 355, 365, 428), #Split new
+    "gratitude":    fitz.Rect(15, 443, 320, 528), #y0 decreased to accommodate bullet
+    "productivity": fitz.Rect(15, 533, 320, 623), #y0 decreased to accommodate bullet
+    "up_next":      fitz.Rect(15, 655, 340, 805),
+    "facts":        fitz.Rect(335, 465, 585, 625),
     "img_rect":     fitz.Rect(375, 220, 585, 430),
-    "weekly":       fitz.Rect(359, 660, 464, 795),
+    "weekly": 		fitz.Rect(360, 752, 585, 805),
+    "img_weekly": 	fitz.Rect(468, 640, 578, 750) #New image
 }
 
-sections = ["title", "events", "gratitude", "productivity", "up_next", "facts", "weekly"]
+sections = ["title", "events-prof", "events-pers", "gratitude", "productivity", "up_next", "facts", "weekly"]
 payload = {}
 
 # ────────────────────────────── Password Gate
@@ -51,13 +53,23 @@ if image_file:
     image_path = f"uploaded_image_{week_no}.png"
     with open(image_path, "wb") as f:
         f.write(image_file.getbuffer())
+    st.sidebar.image(image_path, caption="🖼 Week Image Preview", width=200)
+
+image_file_weekly = st.sidebar.file_uploader("📷 Upload image for 'Weekly' box", type=["png", "jpg", "jpeg"], key="weekly_image")
+image_path_weekly = None
+if image_file_weekly:
+    image_path_weekly = f"uploaded_image_weekly_{week_no}.png"
+    with open(image_path_weekly, "wb") as f:
+        f.write(image_file_weekly.getbuffer())
+    st.sidebar.image(image_path_weekly, caption="🖼 Weekly Box Preview", width=200)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("You can copy the generated dictionary or preview PDF after filling in all sections.")
 
 section_config = {
     "title":        {"limit": 30,  "rich": False, "bg": "#fffbe6"},
-    "events":       {"limit": 400, "rich": True,  "bg": "#f0f8ff"},
+    "events-prof":  {"limit": 250, "rich": True,  "bg": "#f0f8ff"},
+    "events-pers":  {"limit": 150, "rich": True,  "bg": "#f0f8ff"},
     "gratitude":    {"limit": 200, "rich": True,  "bg": "#f0fff0"},
     "productivity": {"limit": 300, "rich": True,  "bg": "#f5f5dc"},
     "up_next":      {"limit": 300, "rich": True,  "bg": "#e8f4fd"},
@@ -90,6 +102,7 @@ for section in sections:
             payload[section] = content or ""
 
 payload["img_rect"] = image_path if image_path else "Test_image"
+payload["img_weekly"] = image_path_weekly if image_path_weekly else "Test_image"
 
 # ────────────────────────────── Generate Preview PDF
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
@@ -129,6 +142,8 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
 
     if payload["img_rect"] != "Test_image" and os.path.exists(payload["img_rect"]):
         page.insert_image(anchors["img_rect"], filename=payload["img_rect"], keep_proportion=True, overlay=True)
+    if payload.get("img_weekly") != "Test_image" and os.path.exists(payload["img_weekly"]):
+        page.insert_image(anchors["img_weekly"], filename=payload["img_weekly"], keep_proportion=True, overlay=True)
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
@@ -171,3 +186,4 @@ if os.path.exists(OUTPUT_PDF):
     with open(OUTPUT_PDF, "rb") as f:
         st.download_button("⬇️ Download PDF", f.read(), file_name=OUTPUT_PDF, mime="application/pdf")
     st.info("⚠️ Chrome and Edge block embedded PDF preview. Download the file and open locally!")
+    
