@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import base64
 import pandas as pd
+from io import StringIO
 
 st.set_page_config(page_title="Newsletter PDF Builder", layout="wide")
 st.title("📬 Newsletter PDF Builder")
@@ -165,29 +166,31 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
 
-# ────────────────────────────── Save to CSV
-def append_payload_to_csv(payload, week_tag, csv_path="past-content.csv"):
-    # Define all expected columns
+# ────────────────────────────── Make new CSV
+def generate_appended_csv(payload, week_tag, original_csv="past-content.csv"):
     columns = ["week", "title", "events-prof", "events-pers", "gratitude",
                "productivity", "up_next", "facts", "weekly"]
 
-    # Create a row with defaults
-    row = {col: "" for col in columns}
-    row["week"] = week_tag
-
-    # Copy over values from payload
-    for key in payload:
-        if key in row:
-            row[key] = payload[key]
-
-    df = pd.DataFrame([row])
-
-    # Append to CSV
-    if os.path.exists(csv_path):
-        df.to_csv(csv_path, mode="a", header=False, index=False)
-        st.success(f"✅ Append Payload ({week_tag}) to CSV!")
+    # Load original CSV (if exists)
+    if os.path.exists(original_csv):
+        df = pd.read_csv(original_csv)
     else:
-        df.to_csv(csv_path, mode="w", header=True, index=False)
+        df = pd.DataFrame(columns=columns)
+
+    # Create the new row
+    new_row = {col: "" for col in columns}
+    new_row["week"] = week_tag
+    for key in payload:
+        if key in new_row:
+            new_row[key] = payload[key]
+
+    # Append new row
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+    # Convert to downloadable CSV buffer
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False)
+    return csv_buffer.getvalue()
         
 # ────────────────────────────── Action Buttons
 st.markdown("---")
@@ -207,12 +210,14 @@ with col1:
             pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors, debug=show_debug)
             if pdf_path:
                 st.success("✅ PDF generated!")
-                append_payload_to_csv(payload, ISSUE_TAG)
 with col2:
-    if st.button("⬇️ Append Payload to CSV"):
-        week_tag = f"25w{date.today().isocalendar().week}"
-        append_payload_to_csv(payload, week_tag = week_tag)
-        
+    week_tag = f"25w{date.today().isocalendar().week}"
+    updated_csv = generate_appended_csv(payload, week_tag=week_tag)
+    st.download_button("⬇️ Download Updated past-content.csv",
+                    data=updated_csv,
+                    file_name="past-content.csv",
+                    mime="text/csv")
+            
 
 # ────────────────────────────── PDF Preview
 if os.path.exists(OUTPUT_PDF):
