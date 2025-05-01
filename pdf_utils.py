@@ -6,11 +6,11 @@ import streamlit as st
 from datetime import date
 
 image_grid_rects = [
-    fitz.Rect(40, 50, 270, 270),
-    fitz.Rect(310, 50, 540, 270),
-    fitz.Rect(40, 315, 270, 535),
-    fitz.Rect(310, 315, 540, 535),
-    fitz.Rect(40, 580, 280, 800),
+    fitz.Rect(40, 50, 260, 270),
+    fitz.Rect(310, 50, 550, 270),
+    fitz.Rect(40, 315, 260, 535),
+    fitz.Rect(310, 315, 550, 535),
+    fitz.Rect(40, 580, 260, 800),
     fitz.Rect(310, 580, 550, 800),
 ]
 
