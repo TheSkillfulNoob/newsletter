@@ -1,0 +1,31 @@
+﻿week,title,events-prof,events-pers,gratitude,productivity,up_next,facts,weekly
+25w16,A Fresh Start in Information Era,"<ul>
+    <li>Kick-started Q2 Interface Integration and outlined project blocks for next few weeks.</li>
+    <li>Python: Bowling dashboard + Newsletter repo</li>
+    <li>RL (CS234) Lectures 4, 6, 7; Tue met professor</li>
+    <li>Dalio ""The Fund"" Ch 4</li>
+</ul>",<ul><li>Lunch w/ TWGSS junior + cycling w/ QFIN junior</li><li>Practice sessions @ Taiko no Tatsujin</li></ul>,"<ul><li>Call with friend: it warms me knowing that we both anticipate for the call</li><li>Peaceful closures of prev. relationships</li><li>Leveraging LLM expansion inspires me</li>
+</ul>","<ul>
+    <li>YT content summary shortcut: Downsub</li>
+    <li>Extract and annotate PDF via PyMuPDF</li>
+    <li>Study: red (attention) and blue (creativity) colors around improve brain performance</li>
+</ul>","<ul>
+    <li>Automate YT Insights via Py API library</li>
+    <li>Trade Strategy Expansion/ Testing on MDP (diff. horizons)</li>
+    <li>Document Lec4 CS234, study Lec 7-8 (Wrap up PPO)</li>
+    <li>Revitalize DSE M2 2022 reminders deck for 2025: brokered deal w/ 5 sec sch teachers</li>
+</ul>","<p>Far-from-ending Market Tumble</p>
+<ul>
+    <li>GS: Retail equities net buy @ record-breaking pace</li>
+    <li>6.5tn debt due in Jun'25 , JPow hawkish resistance to Trump spells crisis: 30Y bond flirted 5%</li>
+    <li>Business expected to refinance at high rates shortly (5Y from COVID)</li>
+    <li>Housing defaults @ Freddie Mac stayed 0.4% over 2024-25, broke 2008 records</li>
+</ul>",#98: Tariff Poker
+25w17,Week of Math Education Revisit,blocks for next few weeks.,Significant practice sessions @ Taiko no Tatsujin,Peaceful closures of prev. relationships,Extract and annotate PDF via PyMuPDF,"<b>Carried over from last week:</b><ul><li>Automate YT Insights via Py API library</li><li>Trade Strategy Expansion/ Testing on MDP</li><li>Document Lec4 CS234, study Lec 7-8 (Wrap up PPO)</li><li>Timetable matcher</li><li>Fina. data sentiment handler</li><li>Website v4 ecosystem/ wrapper</li><li>Upgrade newsletter with 5-10 insightful graphs per week</li></ul>",• GS: Retail equities net buy @ record-breaking pace,discusses economic
+,,• Python: Bowling dashboard + Newsletter repo,,Leveraging LLM expansion inspires me,Study: red (attention) and blue (creativity) colors around improve brain performance,,"• 6.5tn debt due in Jun'25 , JPow hawkish resistance","rationale of tariffs,"
+,,"• RL (CS234) Lectures 4, 6, 7; Tue met professor",,,,,to Trump spells crisis: 30Y bond flirted 5%,the strategic
+,,"• Dalio ""The Fund"" Ch 4",,,,,• Business expected to refinance at high rates shortly,behavior of
+,,,,,,,(5Y from COVID),"nations, and"
+,,,,,,,• Housing defaults @ Freddie Mac stayed 0.4% over,stakeholder
+,,,,,,,"2024-25, broke 2008 records",insights from game
+,,,,,,,,theory.

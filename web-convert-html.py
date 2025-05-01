@@ -166,15 +166,28 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     return output_pdf
 
 # ────────────────────────────── Save to CSV
-def append_payload_to_csv(payload_dict, issue_tag, path="past_records.csv"):
-    flat = {"issue": issue_tag}
-    flat.update(payload_dict)
-    df = pd.DataFrame([flat])
-    if os.path.exists(path):
-        df.to_csv(path, mode='a', header=False, index=False)
-    else:
-        df.to_csv(path, mode='w', header=True, index=False)
+def append_payload_to_csv(payload, week_tag, csv_path="past-content.csv"):
+    # Define all expected columns
+    columns = ["week", "title", "events-prof", "events-pers", "gratitude",
+               "productivity", "up_next", "facts", "weekly"]
 
+    # Create a row with defaults
+    row = {col: "" for col in columns}
+    row["week"] = week_tag
+
+    # Copy over values from payload
+    for key in payload:
+        if key in row:
+            row[key] = payload[key]
+
+    df = pd.DataFrame([row])
+
+    # Append to CSV
+    if os.path.exists(csv_path):
+        df.to_csv(csv_path, mode="a", header=False, index=False)
+    else:
+        df.to_csv(csv_path, mode="w", header=True, index=False)
+        
 # ────────────────────────────── Action Buttons
 st.markdown("---")
 show_debug = st.checkbox("🧪 Show debug layout boundaries (circles + boxes)")
@@ -194,9 +207,11 @@ with col1:
             if pdf_path:
                 st.success("✅ PDF generated!")
                 append_payload_to_csv(payload, ISSUE_TAG)
-
 with col2:
-    st.download_button("⬇️ Download Payload JSON", data=json.dumps(payload, indent=2), file_name="newsletter_payload.json")
+    if st.button("⬇️ Append Payload to CSV"):
+        week_tag = f"25w{date.today().isocalendar().week}"
+        append_payload_to_csv(payload, week_tag = week_tag)
+        
 
 # ────────────────────────────── PDF Preview
 if os.path.exists(OUTPUT_PDF):
