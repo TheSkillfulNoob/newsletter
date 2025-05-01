@@ -46,16 +46,35 @@ payload["img_rect"] = "Test_image"
 payload["img_weekly"] = "Test_image"
 handle_inputs(sections, section_config, payload, week_no)
 
-show_debug = st.checkbox("🧪 Show debug layout boundaries (circles + boxes)")
-if st.button("📄 Generate PDF Preview"):
+from pdf_utils_debugsplit import (
+    render_pdf_from_payload,
+    generate_debug_page1,
+    generate_debug_page2,
+)
+
+# (1) Debug download of page 1 layout
+if st.button("📤 Download Debug Page 1"):
+    debug_path1 = generate_debug_page1(TEMPLATE_PATH, anchors, payload)
+    with open(debug_path1, "rb") as f:
+        st.download_button("⬇️ Download Page 1 Layout", f.read(), file_name="debug_page1.pdf")
+
+# (2) Debug download of page 2 layout
+if st.button("📤 Download Debug Page 2"):
+    debug_path2 = generate_debug_page2(payload)
+    with open(debug_path2, "rb") as f:
+        st.download_button("⬇️ Download Page 2 Layout", f.read(), file_name="debug_page2.pdf")
+
+# (3) Generate and download full newsletter
+if st.button("📄 Generate Newsletter Preview"):
     if any(len(payload[s]) > section_config[s]["limit"] for s in sections if s in payload):
         st.error("❌ Section exceeds character limits.")
     else:
-        path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors, debug=show_debug)
-        if path:
-            st.success("✅ PDF generated!")
-            with open(path, "rb") as f:
-                st.download_button("⬇️ Download PDF", f.read(), file_name=OUTPUT_PDF, mime="application/pdf")
+        preview_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors, debug=False)
+        if preview_path:
+            st.success("✅ PDF Generated Successfully")
+            with open(preview_path, "rb") as f:
+                st.download_button("⬇️ Download Newsletter", f.read(), file_name=OUTPUT_PDF)
+
 
 csv = generate_appended_csv(payload, week_tag=ISSUE_TAG)
 st.download_button("⬇️ Download Updated past-content.csv", data=csv, file_name="past-content.csv", mime="text/csv")

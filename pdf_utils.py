@@ -14,7 +14,7 @@ image_grid_rects = [
     fitz.Rect(310, 580, 550, 800),
 ]
 
-def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=False):
+def render_pdf_from_payload(payload, template_path, output_pdf, anchors):
     template_path = Path(template_path)
     if not template_path.exists() or not template_path.name.endswith(".pdf"):
         st.error("❌ Template must be a valid .pdf file.")
@@ -34,9 +34,6 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     if payload.get("fact_images"):
         page2 = doc.new_page(width=595, height=842)
         insert_fact_images(page2, payload)
-
-    if debug:
-        add_debug_page(doc, anchors, image_grid_rects)
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
@@ -85,11 +82,32 @@ def insert_fact_images(page, payload):
             caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28)
             page.insert_textbox(caption_rect, caption, fontsize=10, color=(0, 0, 0))
 
-def add_debug_page(doc, anchors, grid_rects):
-    debug_page = doc.new_page(width=595, height=842)
-    #for key, rect in anchors.items():
-    #    debug_page.draw_rect(rect, color=(0, 0, 1), width=0.5)
-    #    debug_page.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=(1, 0, 0))
-    for rect in grid_rects:
-        debug_page.draw_rect(rect, color=(0, 1, 0), width=0.5)
-        debug_page.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=(1, 0, 0))
+def generate_debug_page1(template_path, anchors, payload, output_path="debug_page1.pdf"):
+    doc = fitz.open(template_path)
+    page = doc[0]
+    shape = page.new_shape()
+    for key, rect in anchors.items():
+        shape.draw_rect(rect)
+        shape.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
+        page.insert_textbox(fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28),
+                            f"{key}: {payload.get(key, '')[:40]}", fontsize=8)
+    shape.finish(color=(0, 0, 1), width=0.5)
+    shape.commit()
+    doc.save(output_path, deflate=True)
+    return output_path
+
+def generate_debug_page2(payload, output_path="debug_page2.pdf", width=595, height=842):
+    doc = fitz.open()
+    page = doc.new_page(width=width, height=height)
+    shape = page.new_shape()
+    for i, rect in enumerate(image_grid_rects):
+        shape.draw_rect(rect)
+        shape.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
+        if i < len(payload.get("fact_images", [])):
+            caption = payload["fact_images"][i].get("caption", "")
+            page.insert_textbox(fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28),
+                                caption[:40], fontsize=8)
+    shape.finish(color=(0, 1, 0), width=0.5)
+    shape.commit()
+    doc.save(output_path, deflate=True)
+    return output_path
