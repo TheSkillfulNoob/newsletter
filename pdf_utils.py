@@ -36,27 +36,30 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
             return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(src)}</h1>'
         return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(src)}</div>'
 
-    page = doc[0]
+    page1 = doc[0]
     # First: insert HTML content only (skip image keys explicitly)
     text_keys = [k for k in anchors if not k.startswith("img") and k in payload and isinstance(payload[k], str)]
 
     for key in text_keys:
         html_snip = make_html(payload[key], is_title=(key == "title"))
         try:
-            page.insert_htmlbox(anchors[key], html_snip, scale_low=0.5, overlay=True)
+            page1.insert_htmlbox(anchors[key], html_snip, scale_low=0.5, overlay=True)
         except OverflowError:
             continue
 
     for img_key in ["img_rect", "img_weekly"]:
         st.write(f"🔍 Checking image path for {img_key}:", payload.get(img_key))
         if payload.get(img_key) and os.path.exists(payload[img_key]):
-            page.insert_image(anchors[img_key], filename=payload[img_key], keep_proportion=True, overlay=True)
+            page1.insert_image(anchors[img_key], filename=payload[img_key], keep_proportion=True, overlay=True)
         else:
             st.warning(f"⚠️ Image file for '{img_key}' not found or not uploaded.")
 
     # ───────── Add second page with up to 6 images
     if payload.get("fact_images"):
-        page2 = doc.new_page()
+        doc.insert_page(-1)  # inserts a new page at the end
+        page2 = doc[-1]      # get the last page (safest)
+        assert page2 is not None, "page2 creation failed"
+        
         for i, item in enumerate(payload["fact_images"][:6]):
             rect = image_grid_rects[i]
             if os.path.exists(item["img"]):
@@ -68,22 +71,19 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
         if debug:
             red, blue = (1, 0, 0), (0, 0, 1)
-            # Debug rectangles on first page
-            shape1 = page.new_shape()
+            shape1 = page1.new_shape()
             for key, rect in anchors.items():
                 shape1.draw_rect(rect)
                 shape1.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
             shape1.finish(color=blue, fill=None, width=0.5)
             shape1.commit()
 
-            # Debug rectangles on second page (image grid)
             shape2 = page2.new_shape()
             for rect in image_grid_rects:
                 shape2.draw_rect(rect)
                 shape2.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
             shape2.finish(color=blue, fill=None, width=0.5)
             shape2.commit()
-
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
