@@ -4,6 +4,7 @@ from setup import configure_page, authenticate
 from ui_input import handle_inputs
 from pdf_utils import render_pdf_from_payload
 from csv_utils import generate_appended_csv
+import fitz
 
 configure_page()
 authenticate()
