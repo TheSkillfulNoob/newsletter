@@ -42,7 +42,7 @@ section_config = {
 sections = list(section_config.keys())
 payload = {}
 
-handle_inputs(sections, section_config, payload)
+handle_inputs(sections, section_config, payload, week_no)
 
 payload["img_rect"] = "Test_image"
 payload["img_weekly"] = "Test_image"
