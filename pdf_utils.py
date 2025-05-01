@@ -3,14 +3,15 @@ import html
 import os
 from pathlib import Path
 import streamlit as st
+from datetime import date
 
 image_grid_rects = [
-    fitz.Rect(40, 40, 280, 230),
-    fitz.Rect(310, 40, 550, 230),
-    fitz.Rect(40, 250, 280, 440),
-    fitz.Rect(310, 250, 550, 440),
-    fitz.Rect(40, 460, 280, 650),
-    fitz.Rect(310, 460, 550, 650),
+    fitz.Rect(40, 50, 270, 270),
+    fitz.Rect(310, 50, 540, 270),
+    fitz.Rect(40, 315, 270, 535),
+    fitz.Rect(310, 315, 540, 535),
+    fitz.Rect(40, 580, 280, 800),
+    fitz.Rect(310, 580, 550, 800),
 ]
 
 def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=False):
@@ -31,11 +32,11 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
     page2 = None
     if payload.get("fact_images"):
-        page2 = doc.new_page(width=595, height=842)
+        page2 = doc.new_page(width=page1.rect.width, height=page1.rect.height)
         insert_fact_images(page2, payload)
 
     if debug:
-        add_debug_page(doc, anchors, image_grid_rects)
+        add_debug_page(doc, anchors, image_grid_rects, width=page1.rect.width, height=page1.rect.height)
 
     doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
@@ -72,6 +73,10 @@ def insert_main_content(page, payload, anchors, font_source_page):
 
 def insert_fact_images(page, payload):
     st.write("✅ page2 parent:", page.parent is not None and page.parent.is_pdf)
+    week_no = int(date.today().strftime("%V"))
+    heading = f"Week {week_no}: Selected Graphs / Charts"
+    page.insert_textbox(fitz.Rect(40, 15, 550, 40), heading, fontsize=14, fontname="helv", align=1, color=(0, 0, 0))
+
     for i, item in enumerate(payload["fact_images"][:6]):
         rect = image_grid_rects[i]
         if os.path.exists(item["img"]):
@@ -81,11 +86,11 @@ def insert_fact_images(page, payload):
             caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28)
             page.insert_textbox(caption_rect, caption, fontsize=10, color=(0, 0, 0))
 
-def add_debug_page(doc, anchors, grid_rects):
-    debug_page = doc.new_page(width=595, height=842)
-    for key, rect in anchors.items():
-        debug_page.draw_rect(rect, color=(0, 0, 1), width=0.5)
-        debug_page.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=(1, 0, 0))
+def add_debug_page(doc, anchors, grid_rects, width, height):
+    debug_page = doc.new_page(width=width, height=height)
+    # for key, rect in anchors.items():
+    #    debug_page.draw_rect(rect, color=(0, 0, 1), width=0.5)
+    #    debug_page.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=(1, 0, 0))
     for rect in grid_rects:
         debug_page.draw_rect(rect, color=(0, 1, 0), width=0.5)
         debug_page.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=(1, 0, 0))
