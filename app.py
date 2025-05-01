@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import date
 from setup import configure_page, authenticate
-from ui_input import handle_inputs
+from ui_input import handle_main_content, handle_fact_content
 from pdf_utils import (
     render_pdf_from_payload,
     generate_debug_page1,
@@ -9,14 +9,16 @@ from pdf_utils import (
 )
 from csv_utils import generate_appended_csv
 import fitz
+
 configure_page()
 authenticate()
 
 TEMPLATE_PATH = "Weekly-Newsletter-Template-v4.pdf"
-week_no = int(date.today().strftime("%V"))
-OUTPUT_PDF = f"preview_week_{week_no}.pdf"
-ISSUE_TAG = f"25w{week_no}"
+week_no      = int(date.today().strftime("%V"))
+OUTPUT_PDF   = f"preview_week_{week_no}.pdf"
+ISSUE_TAG    = f"25w{week_no}"
 
+# anchors and section_config as before…
 anchors = {
     "title":        (12, 12, 588, 208),
     "events-prof":  (17, 254, 365, 358),
@@ -41,51 +43,67 @@ section_config = {
     "facts":        {"limit": 300, "rich": True},
     "weekly":       {"limit": 150, "rich": True},
 }
+sections = section_config.keys()
 
-sections = list(section_config.keys())
-payload = {}
+payload = {
+    "img_rect":    "Test_image",
+    "img_weekly":  "Test_image",
+}
 
-payload["img_rect"] = "Test_image"
-payload["img_weekly"] = "Test_image"
-handle_inputs(sections, section_config, payload, week_no)
+# --- split into tabs ---
+tab_main, tab_graphs, tab_dl = st.tabs([
+    "✏️ Main Content",
+    "📊 Fact Graphs",
+    "📥 Download"
+])
 
-# (1) Debug Page 1
-col1, col2 = st.columns([1, 2])
-with col1:
-    if st.button("📤 Debug Page 1"):
-        st.session_state.debug1_ready = True
-with col2:
-    if st.session_state.get("debug1_ready"):
-        debug_path1 = generate_debug_page1(TEMPLATE_PATH, anchors, payload)
-        with open(debug_path1, "rb") as f:
-            st.download_button("⬇️ Download Page 1 Layout", f.read(), file_name="debug_page1.pdf")
+with tab_main:
+    handle_main_content(sections, section_config, payload, week_no)
 
-# (2) Debug Page 2
-col3, col4 = st.columns([1, 2])
-with col3:
-    if st.button("📤 Debug Page 2"):
-        st.session_state.debug2_ready = True
-with col4:
-    if st.session_state.get("debug2_ready"):
-        debug_path2 = generate_debug_page2(payload)
-        with open(debug_path2, "rb") as f:
-            st.download_button("⬇️ Download Page 2 Layout", f.read(), file_name="debug_page2.pdf")
+with tab_graphs:
+    handle_fact_content(payload, week_no)
 
-# (3) Generate Full Newsletter
-col5, col6 = st.columns([1, 2])
-with col5:
-    if st.button("📄 Preview Newsletter"):
-        if any(len(payload[s]) > section_config[s]["limit"] for s in sections if s in payload):
-            st.error("❌ Section exceeds character limits.")
-        else:
-            st.session_state.preview_ready = True
-with col6:
-    if st.session_state.get("preview_ready"):
-        preview_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
-        if preview_path:
-            st.success("✅ PDF Ready")
-            with open(preview_path, "rb") as f:
-                st.download_button("⬇️ Download Newsletter", f.read(), file_name=OUTPUT_PDF)
+with tab_dl:
+    st.header("🚀 Actions & Downloads")
 
-csv = generate_appended_csv(payload, week_tag=ISSUE_TAG)
-st.download_button("⬇️ Download Updated past-content.csv", data=csv, file_name="past-content.csv", mime="text/csv")
+    # Debug Page 1
+    c1, c2 = st.columns([1,2])
+    with c1:
+        if st.button("🔎 Debug Page 1"):
+            st.session_state.d1 = True
+    with c2:
+        if st.session_state.get("d1"):
+            p1 = generate_debug_page1(TEMPLATE_PATH, anchors, payload)
+            with open(p1,"rb") as f:
+                st.download_button("⬇️ Download Page 1 Layout", f.read(), file_name="debug_page1.pdf")
+
+    # Debug Page 2
+    c3, c4 = st.columns([1,2])
+    with c3:
+        if st.button("🔎 Debug Page 2"):
+            st.session_state.d2 = True
+    with c4:
+        if st.session_state.get("d2"):
+            p2 = generate_debug_page2(payload)
+            with open(p2,"rb") as f:
+                st.download_button("⬇️ Download Page 2 Layout", f.read(), file_name="debug_page2.pdf")
+
+    # Full Newsletter
+    c5, c6 = st.columns([1,2])
+    with c5:
+        if st.button("📄 Generate Newsletter"):
+            too_long = any(len(payload[s])>section_config[s]["limit"] for s in sections)
+            if too_long:
+                st.error("❌ One or more sections exceed limits.")
+            else:
+                st.session_state.pn = True
+    with c6:
+        if st.session_state.get("pn"):
+            out = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
+            if out:
+                with open(out,"rb") as f:
+                    st.download_button("⬇️ Download Newsletter", f.read(), file_name=OUTPUT_PDF)
+                # CSV
+                csv = generate_appended_csv(payload, week_tag=ISSUE_TAG)
+                st.download_button("⬇️ Download Records CSV", data=csv,
+                                   file_name="past-content.csv", mime="text/csv")

@@ -19,60 +19,44 @@ def strip_html(html_str):
     parser.feed(html_str or "")
     return parser.get_text()
 
-def handle_inputs(sections, section_config, payload, week_no):
-    # Sidebar image uploads
-    image_path, image_path_weekly = None, None
-
-    image_file = st.sidebar.file_uploader("📷 Upload: Week Summary", type=["png", "jpg", "jpeg"])
+def handle_main_content(sections, section_config, payload, week_no):
+    # — sidebar image uploads (page-1 images) —
+    image_file = st.sidebar.file_uploader("📷 Week Summary Image", type=["png","jpg","jpeg"])
     if image_file:
-        image_path = f"uploaded_image_{week_no}.png"
-        with open(image_path, "wb") as f:
-            f.write(image_file.getbuffer())
-        st.sidebar.image(image_path, width=200)
-        payload["img_rect"] = image_path
+        path = f"uploaded_image_{week_no}.png"
+        with open(path,"wb") as f: f.write(image_file.getbuffer())
+        st.sidebar.image(path, width=200)
+        payload["img_rect"] = path
 
-    image_file_weekly = st.sidebar.file_uploader("📷 Upload: Weekly Cover", type=["png", "jpg", "jpeg"], key="weekly_image")
+    image_file_weekly = st.sidebar.file_uploader("📷 Weekly Cover Image", type=["png","jpg","jpeg"])
     if image_file_weekly:
-        image_path_weekly = f"uploaded_image_weekly_{week_no}.png"
-        with open(image_path_weekly, "wb") as f:
-            f.write(image_file_weekly.getbuffer())
-        st.sidebar.image(image_path_weekly, width=200)
-        payload["img_weekly"] = image_path_weekly
-        
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("You can copy the generated dictionary or preview PDF after filling in all sections.")
+        path = f"uploaded_image_weekly_{week_no}.png"
+        with open(path,"wb") as f: f.write(image_file_weekly.getbuffer())
+        st.sidebar.image(path, width=200)
+        payload["img_weekly"] = path
 
-    # Text inputs
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("Fill in your newsletter text sections:")
+
     for section in sections:
         cfg = section_config[section]
-        placeholder = f"Enter: {section}..." if cfg["rich"] else "Enter plain text..."
+        placeholder = f"Enter {section}…" if cfg["rich"] else ""
         if cfg["rich"]:
-            st.subheader("✏️ " + section.capitalize())
-            content = st_quill(key=f"editor_{section}", html=True, placeholder=placeholder)
+            html_src = st_quill(key=f"editor_{section}", html=True, placeholder=placeholder)
+            visible = strip_html(html_src)
+            payload[section] = html_src or ""
         else:
-            content = st.text_input(f"{section.title()}", placeholder=placeholder, key=f"input_{section}")
-        visible_text = strip_html(content) if cfg["rich"] else content #Convert HTML to display for length count
-        char_count = len(visible_text or "")
-        st.caption(f"{char_count}/{cfg['limit']} characters")
-        if char_count > cfg["limit"]:
-            st.error(f"Too long! Limit is {cfg['limit']} characters.")
-        else:
-            payload[section] = content or ""
+            visible = st.text_input(section.title(), key=f"input_{section}")
+            payload[section] = visible or ""
+        st.caption(f"{len(visible)} / {cfg['limit']} chars")
 
-    # Fact images and captions
-    st.subheader("📊 Fun Facts & Analysis Images")
-    uploaded_images = st.file_uploader("Upload up to 6 images", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+def handle_fact_content(payload, week_no):
+    st.markdown("### 📊 Fun Facts & Analysis Images")
+    uploaded = st.file_uploader("Upload up to 6 images", type=["png","jpg","jpeg"], accept_multiple_files=True)
     payload["fact_images"] = []
-    for i in range(min(6, len(uploaded_images))):
-        file = uploaded_images[i]
+    for i,file in enumerate(uploaded[:6]):
         path = f"fact_img_{week_no}_{i+1}.png"
-        with open(path, "wb") as f:
-            f.write(file.getbuffer())
+        with open(path,"wb") as f: f.write(file.getbuffer())
         st.image(path, width=200)
-        caption = st.text_input(f"Insight for image {i+1} (max 100 chars)", key=f"caption_{i}")
-        payload["fact_images"].append({
-            "img": path,
-            "caption": caption[:100]
-        })
-
-    return image_path != "Test_image" and image_path_weekly != "Test_image" #ensure the two images get successfully uploaded
+        caption = st.text_input(f"Insight {i+1}", key=f"cap_{i}")
+        payload["fact_images"].append({"img":path, "caption":caption[:100]})
