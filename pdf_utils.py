@@ -89,14 +89,14 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
     # ───────── Optional debug boundary rendering
     if debug:
         red, blue = (1, 0, 0), (0, 0, 1)
+        
         for key, rect in anchors.items():
-            page1.draw_rect(rect, color=blue, width=0.5)
-            page1.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+            page1.insert_rect(rect, color = blue, width=0.5)
 
         if page2:
             for rect in image_grid_rects:
-                page2.draw_rect(rect, color=blue, width=0.5)
-                page2.draw_circle(fitz.Point(rect.x0, rect.y0), 4, color=red)
+                page2.insert_rect(rect, color = blue, width=0.5)
+
 
     new_doc.save(output_pdf, deflate=True, garbage=4)
     return output_pdf
