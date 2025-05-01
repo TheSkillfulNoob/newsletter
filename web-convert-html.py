@@ -34,14 +34,12 @@ sections = ["title", "events", "gratitude", "productivity", "up_next", "facts", 
 payload = {}
 
 # ────────────────────────────── Password Gate
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
 if not st.session_state.authenticated:
     user_pw = st.text_input("🔒 Enter password to unlock preview tools", type="password")
     if user_pw == st.secrets["auth"]["password"]:
         st.success("🔓 Access granted.")
         st.session_state.authenticated = True
+        st.experimental_rerun()  # 🔁 Force rerun so new UI appears
     elif user_pw:
         st.error("❌ Incorrect password.")
     st.stop()
