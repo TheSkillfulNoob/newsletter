@@ -14,7 +14,7 @@ st.set_page_config(page_title="Newsletter PDF Builder", layout="wide")
 st.title("📬 Newsletter PDF Builder")
 
 # ────────────────────────────── Setup
-TEMPLATE_PATH = "Weekly-Newsletter-Template-v3.pdf"
+TEMPLATE_PATH = "Weekly-Newsletter-Template-v4.pdf"
 week_no = int(date.today().strftime("%V"))
 OUTPUT_PDF = f"preview_week_{week_no}.pdf"
 ISSUE_TAG = f"25w{week_no}"
