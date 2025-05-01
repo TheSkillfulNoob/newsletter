@@ -39,7 +39,9 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
     for img_key in ["img_rect", "img_weekly"]:
         if payload.get(img_key) and os.path.exists(payload[img_key]):
-            page.insert_image(fitz.Rect(anchors[img_key]), filename=payload[img_key], keep_proportion=True, overlay=True)
+            page.insert_image(anchors[img_key], filename=payload[img_key], keep_proportion=True, overlay=True)
+        else:
+            raise Exception("insert_image is not called. Check img_keys!")
 
     if debug:
         red, blue = (1, 0, 0), (0, 0, 1)
