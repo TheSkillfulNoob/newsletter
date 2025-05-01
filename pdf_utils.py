@@ -22,9 +22,9 @@ def render_pdf_from_payload(payload, template_path, output_pdf, anchors, debug=F
 
     template_doc = fitz.open(str(template_path))
     template_page = template_doc[0]
-    doc = fitz.open()
-
     page_width, page_height = template_page.rect.width, template_page.rect.height
+    
+    doc = fitz.open()
     page1 = doc.new_page(width=page_width, height=page_height)
     page1.show_pdf_page(fitz.Rect(0, 0, page_width, page_height), template_doc, 0)
     st.write("✅ page1 parent:", page1.parent is not None and page1.parent.is_pdf)
@@ -76,7 +76,7 @@ def insert_fact_images(page, payload):
     st.write("✅ page2 parent:", page.parent is not None and page.parent.is_pdf)
     week_no = int(date.today().strftime("%V"))
     heading = f"Week {week_no}: Selected Graphs / Charts"
-    page.insert_textbox(fitz.Rect(40, 15, 550, 40), heading, fontsize=14, fontname="helv", align=1, color=(0, 0, 0))
+    page.insert_textbox(fitz.Rect(40, 15, 550, 40), heading, fontsize=14, align=1, color=(0, 0, 0))
 
     for i, item in enumerate(payload["fact_images"][:6]):
         rect = image_grid_rects[i]
