@@ -79,8 +79,8 @@ def insert_fact_images(page, payload):
             page.insert_image(rect, filename=item["img"], keep_proportion=True, overlay=True)
         caption = item.get("caption", "")
         if caption.strip():
-            caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28)
-            page.insert_textbox(caption_rect, caption, fontsize=10, color=(0, 0, 0))
+            caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 55)
+            page.insert_textbox(caption_rect, caption, fontsize=8, color=(0, 0, 1))
 
 def generate_debug_page1(template_path, anchors, payload, output_path="debug_page1.pdf"):
     doc = fitz.open(template_path)
@@ -105,8 +105,9 @@ def generate_debug_page2(payload, output_path="debug_page2.pdf", width=595, heig
         shape.draw_circle(fitz.Point(rect.x0, rect.y0), 4)
         if i < len(payload.get("fact_images", [])):
             caption = payload["fact_images"][i].get("caption", "")
-            page.insert_textbox(fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 28),
-                                caption[:40], fontsize=8)
+            if caption.strip():
+                caption_rect = fitz.Rect(rect.x0, rect.y1 + 4, rect.x1, rect.y1 + 55)
+                page.insert_textbox(caption_rect, caption, fontsize=8, color=(0, 0, 1))
     shape.finish(color=(0, 1, 0), width=0.5)
     shape.commit()
     doc.save(output_path, deflate=True)
