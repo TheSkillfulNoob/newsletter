@@ -91,7 +91,7 @@ with tab_dl:
     c5, c6 = st.columns([1,2])
     with c5:
         if st.button("📄 Generate Newsletter"):
-            too_long = any((len(strip_html(payload[s]))>section_config[s]["limit"] and s != 'title') for s in sections)
+            too_long = any(len(strip_html(payload[s]))>section_config[s]["limit"] for s in sections)
             if too_long:
                 st.error("❌ One or more sections exceed limits.")
             else:

@@ -53,7 +53,10 @@ def insert_main_content(page, payload, anchors, font_source_page):
         if isinstance(src, str) and src.lstrip().startswith("<"):
             return src
         if is_title:
-            return f'<h1 style="font-family:\'{font_name}\';margin:0">{html.escape(str(src))}</h1>'
+            today    = date.today()
+            week_no  = int(date.today().strftime("%V"))
+            week_tag    = f"Week {week_no}, {today.year}"
+            return f'<h1 style="font-family:\'{font_name}\';margin:0">{week_tag}: {html.escape(str(src))}</h1>'
         return f'<div style="font-family:\'{font_name}\';font-size:11pt;line-height:13pt">{html.escape(str(src))}</div>'
 
     text_keys = [k for k in anchors if not k.startswith("img") and k in payload and isinstance(payload[k], str)]
