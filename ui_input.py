@@ -49,6 +49,10 @@ def handle_main_content(sections, section_config, payload, week_no):
         else:
             visible = st.text_input(section.title(), key=f"input_{section}")
             payload[section] = visible or ""
+            if section == "title":
+                week_no = int(date.today().strftime("%V"))
+                year = int(date.today().strftime("%Y")) 
+                payload[section] = f"Week {week_no}, {year}: {payload[section]}"
         st.caption(f"{len(visible)} / {cfg['limit']} chars")
 
 def handle_fact_content(payload, week_no):
