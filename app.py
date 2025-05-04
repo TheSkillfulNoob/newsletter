@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import date
 from setup import configure_page, authenticate
-from ui_input import handle_main_content, handle_fact_content
+from ui_input import handle_main_content, handle_fact_content, strip_html
 from pdf_utils import (
     render_pdf_from_payload,
     generate_debug_page1,
@@ -91,7 +91,7 @@ with tab_dl:
     c5, c6 = st.columns([1,2])
     with c5:
         if st.button("📄 Generate Newsletter"):
-            too_long = any(len(payload[s])>section_config[s]["limit"] for s in sections)
+            too_long = any(len(strip_html(payload[s]))>section_config[s]["limit"] for s in sections)
             if too_long:
                 st.error("❌ One or more sections exceed limits.")
             else:
