@@ -15,8 +15,8 @@ App hosted on Streamlit for automating newsletter.
 ### To Implement
 From `py-text-separation`:
 <ul>
-    <li> CSV Expand Graphs and Captions </li>
-    <li> Mail HTML Manager </li>
-    <li> Automail Integration </li>
-    <li> Manage Subscribers </li>
+    <li> CSV Expand Graphs and Captions (Implementing: 25w18) </li>
+    <li> Mail HTML Manager (Implementing, New App Tab: 25w18) </li>
+    <li> Sixth figure should reserve as text insights instead! </li>
+    <li> Manage Subscribers (Implementing, New App Tab: 25w18) </li>
 </ul>
