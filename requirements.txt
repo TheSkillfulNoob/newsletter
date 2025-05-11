@@ -2,3 +2,6 @@ streamlit_quill
 streamlit
 PyMuPDF
 pathlib
+gspread
+gspread_dataframe
+oauth2client
