@@ -49,7 +49,7 @@ def load_subscribers():
 def add_subscriber(email):
     ws = _connect("News-subs")
     df = load_subscribers()
-    today = date.today().isoformat()
+    today = date.today().strftime("%m/%d/%Y")   # yields “04/30/2025”
     if email in df["email"].values:
         st.warning(f"{email} is already subscribed.")
         return
@@ -65,5 +65,6 @@ def remove_subscriber(email):
         st.warning(f"{email} was not in the list.")
         return
     df = df[df["email"] != email]
-    set_with_dataframe(ws, df)
+    ws.clear() # **CLEAR THE SHEET** so old rows disappear
+    set_with_dataframe(ws, df[['email','subscribed_date']], include_index=False) # Re-write
     st.success(f"Removed {email}.")
