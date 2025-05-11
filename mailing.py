@@ -1,15 +1,16 @@
 import smtplib
 import ssl
 import pandas as pd
+from google_utils import load_subscribers
 from email.message import EmailMessage
 my_email = "theskillfulnoob2002@gmail.com"
 app_pw = "wyxl fwfv vqpr udde"
 
 def send_newsletter(csv_path, subject, plain_body, html_body, attachment_path=None, debug_email = None):
-    if debug_email or not csv_path:
+    if debug_email:
         bcc_list = [debug_email]
     else:
-        df = pd.read_csv(csv_path)
+        df = load_subscribers()
         bcc_list = df['email'].tolist()
     msg = EmailMessage()
     msg['Subject'] = subject
