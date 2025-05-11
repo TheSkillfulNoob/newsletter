@@ -7,7 +7,7 @@ from pdf_utils import (
     generate_debug_page1,
     generate_debug_page2,
 )
-
+from streamlit_quill import st_quill
 from google_utils import (
     load_history, 
     append_history,
@@ -122,31 +122,96 @@ with tab_dl:
 
 # ––– Tab 4: Automail & record history –––
 with tab_automail:
-    st.header("Send Newsletter & Log to History")
-    # 1) regenerate PDF if not already
-    subject = st.text_input("Email subject", key="mail_subject",
-        value=f"Week {week_no}, {date.today().year} Newsletter")
-    html_body = st.text_area("HTML body", height=200, key="mail_html",
-        value=st.session_state.get("last_html", ""))  # or re-generate from payload
-    plain_body = st.text_area("Plain-text body", height=100,
-        value="Your newsletter is attached. Please view the PDF.")
+    st.header("Send & Log Newsletter")
 
-    if st.button("📤 Send & Log"):
-        # send
-        pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
-        send_newsletter(
-            csv_path=None,                    # production: path to subscribers csv
-            subject=subject,
-            plain_body=plain_body,
-            html_body=html_body,
-            attachment_path=pdf_path,
-            debug_email = my_email
-        )
-        st.success("✅ Email sent.")
-        # log
-        week_tag = f"w{week_no:02d}{date.today().year%100}"
-        append_history(week_tag, payload)
-        st.success("✅ Logged to News-hist sheet.")
+    # — Default subject from Main Content payload —
+    week_no = int(date.today().strftime("%V"))
+    default_title = payload.get("title", "").split(": ",1)[-1]  # after your Week tag
+    default_subject = f"🌱 2025 W{week_no} Newsletter: {default_title}"
+    subject = st.text_input("✉️ Email subject", value=default_subject)
+
+    # — WYSIWYG editor for the inner “highlight” div —
+    st.subheader("✏️ Highlight Box Content")
+    inner_html = st_quill(
+        key="mail_inner",
+        html=True,
+        placeholder="Enter your key message here…",
+        height=200
+    )
+    # Strip tags & enforce 500-char limit
+    inner_text = strip_html(inner_html or "")
+    st.caption(f"{len(inner_text)}/500 characters")
+    if len(inner_text) > 500:
+        st.error("❌ Too long! Please keep under 500 characters.")
+
+    # — Assemble full HTML payload —
+    wrapper_start = '''
+    <html><body style="font-family:Arial,sans-serif;margin:0;padding:0;">
+     <div style="background-color:#E0F7FA;padding:24px;"><div style="margin-top:20px;">
+      <div style="background-color:#FFFACD;padding:16px;border-radius:8px;">
+       <h2 style="color:#4CAF50;margin-top:0;">Your Weekly Digest</h2>
+    '''
+    wrapper_end = '''
+      </div>
+      <p style="font-style:italic;color:#3994cc;">
+        Stay inspired and informed.<br>
+        Feel free to <b>give me feedback</b> anytime—love to hear from you! ❤️<br>
+        - Andrew
+      </p>
+     </div></div>
+     <div style="background-color:#F0F0F0;padding:16px;font-size:0.9em;color:#555;text-align:center;">
+       You received this because you’re subscribed to Andrew’s newsletter.<br>
+       <a href="mailto:{your_email}">Unsubscribe</a> by emailing me.
+     </div>
+    </body></html>
+    '''.format(your_email=my_email)
+
+    html_content = wrapper_start + (inner_html or "") + wrapper_end
+
+    # — Plain-text fallback —
+    plain_body = st.text_area(
+        "Plain-text email (fallback)", 
+        value=f"Your Week {week_no} newsletter is attached.\nIf you can’t see HTML, please check the PDF."
+    )
+
+    # — Action buttons side by side —
+    col_test, col_send = st.columns([1,1])
+    with col_test:
+        if st.button("📧 Test Send to Me"):
+            if len(inner_text) <= 500:
+                pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
+                send_newsletter(
+                    csv_path=None,
+                    subject=subject,
+                    plain_body=plain_body,
+                    html_body=html_content,
+                    attachment_path=pdf_path,
+                    debug_email=my_email
+                )
+                st.success("✅ Test email sent to you.")
+            else:
+                st.error("Fix your highlight box first!")
+
+    with col_send:
+        if st.button("📤 Send & Log"):
+            if len(inner_text) <= 500:
+                # 1️⃣ generate PDF
+                pdf_path = render_pdf_from_payload(payload, TEMPLATE_PATH, OUTPUT_PDF, anchors)
+                # 2️⃣ send to real subscribers
+                send_newsletter(
+                    csv_path=None,       # swap in path to your live CSV
+                    subject=subject,
+                    plain_body=plain_body,
+                    html_body=html_content,
+                    attachment_path=pdf_path
+                )
+                st.success("✅ Newsletter sent to all subscribers.")
+                # 3️⃣ record in history sheet
+                week_tag = f"25w{week_no:02d}"
+                append_history(week_tag, payload)
+                st.success("✅ Logged to News-hist.")
+            else:
+                st.error("Fix your highlight box first!")
 
 # ––– Tab 5: Subscriber management –––
 with tab_subs:
