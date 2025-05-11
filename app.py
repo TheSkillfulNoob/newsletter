@@ -120,8 +120,6 @@ with tab_dl:
                 st.download_button("⬇️ Download Records CSV", data=csv,
                                    file_name="past-content.csv", mime="text/csv")
 
-tab_automail, tab_subs = st.tabs(["", ""])
-
 # ––– Tab 4: Automail & record history –––
 with tab_automail:
     st.header("Send Newsletter & Log to History")
