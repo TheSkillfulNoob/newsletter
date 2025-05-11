@@ -135,8 +135,7 @@ with tab_automail:
     inner_html = st_quill(
         key="mail_inner",
         html=True,
-        placeholder="Enter your key message here…",
-        height=200
+        placeholder="Enter your key message here…"
     )
     # Strip tags & enforce 500-char limit
     inner_text = strip_html(inner_html or "")
