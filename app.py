@@ -25,8 +25,9 @@ authenticate()
 
 TEMPLATE_PATH = "Weekly-Newsletter-Template-v4.pdf"
 week_no      = int(date.today().strftime("%V"))
-OUTPUT_PDF   = f"preview_week_{week_no}.pdf"
 ISSUE_TAG    = f"25w{week_no}"
+OUTPUT_PDF   = f"{ISSUE_TAG}.pdf"
+
 my_email = "theskillfulnoob2002@gmail.com"
 
 # anchors and section_config as before…
@@ -148,7 +149,7 @@ with tab_automail:
     <html><body style="font-family:Arial,sans-serif;margin:0;padding:0;">
      <div style="background-color:#E0F7FA;padding:24px;"><div style="margin-top:20px;">
       <div style="background-color:#FFFACD;padding:16px;border-radius:8px;">
-       <h2 style="color:#4CAF50;margin-top:0;">Your Weekly Digest</h2>
+       <h2 style="color:#4CAF50;margin-top:0;">Your Weekly Digest ☀️</h2>
     '''
     wrapper_end = '''
       </div>
