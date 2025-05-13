@@ -1,10 +1,11 @@
 import smtplib
 import ssl
+import streamlit as st
 import pandas as pd
 from google_utils import load_subscribers
 from email.message import EmailMessage
 my_email = "theskillfulnoob2002@gmail.com"
-app_pw = "wyxl fwfv vqpr udde"
+app_pw = st.secrets["auth"]["gapp-pw"]
 
 def send_newsletter(csv_path, subject, plain_body, html_body, attachment_path=None, debug_email = None):
     if debug_email:
