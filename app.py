@@ -34,9 +34,9 @@ my_email = "theskillfulnoob2002@gmail.com"
 anchors = {
     "title":        (12, 12, 588, 208),
     "events-prof":  (17, 254, 365, 358),
-    "events-pers":  (17, 360, 365, 428),
-    "gratitude":    (17, 445, 320, 528),
-    "productivity": (17, 533, 320, 623),
+    # deprecated in v5 - "events-pers":  (17, 360, 365, 428), 
+    "gratitude":    (17, 445, 320, 623), #original y2 is 528
+    # deprecated in v5 - "productivity": (17, 533, 320, 623),
     "up_next":      (17, 655, 340, 805),
     "facts":        (335, 460, 585, 625),
     "img_rect":     (375, 220, 585, 430),
@@ -47,10 +47,10 @@ anchors = {k: fitz.Rect(*v) for k, v in anchors.items()}
 
 section_config = {
     "title":        {"limit": 30,  "rich": False},
-    "events-prof":  {"limit": 250, "rich": True},
-    "events-pers":  {"limit": 150, "rich": True},
-    "gratitude":    {"limit": 200, "rich": True},
-    "productivity": {"limit": 300, "rich": True},
+    "events-prof":  {"limit": 300, "rich": True},
+    # "events-pers":  {"limit": 150, "rich": True}, # to deprecate
+    "gratitude":    {"limit": 300, "rich": True},
+    # "productivity": {"limit": 300, "rich": True}, # to deprecate
     "up_next":      {"limit": 300, "rich": True},
     "facts":        {"limit": 300, "rich": True},
     "weekly":       {"limit": 150, "rich": True},
