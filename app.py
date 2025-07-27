@@ -33,12 +33,12 @@ my_email = "theskillfulnoob2002@gmail.com"
 # anchors and section_config as before…
 anchors = {
     "title":        (12, 12, 588, 208),
-    "events-prof":  (17, 254, 365, 358),
+    "events-prof":  (17, 244, 365, 418),
     # deprecated in v5 - "events-pers":  (17, 360, 365, 428), 
-    "gratitude":    (17, 445, 320, 623), #original y2 is 528
+    "gratitude":    (17, 452, 320, 625), #original y2 is 528
     # deprecated in v5 - "productivity": (17, 533, 320, 623),
     "up_next":      (17, 655, 340, 805),
-    "facts":        (335, 460, 585, 625),
+    "facts":        (335, 452, 585, 625),
     "img_rect":     (375, 220, 585, 430),
     "weekly":       (365, 732, 585, 805),
     "img_weekly":   (468, 640, 568, 740)
