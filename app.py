@@ -23,7 +23,7 @@ import fitz
 configure_page()
 authenticate()
 
-TEMPLATE_PATH = "Weekly-Newsletter-Template-v4.pdf"
+TEMPLATE_PATH = "Weekly-Newsletter-Template-v5.pdf"
 week_no      = int(date.today().strftime("%V"))
 ISSUE_TAG    = f"25w{week_no}"
 OUTPUT_PDF   = f"{ISSUE_TAG}.pdf"
